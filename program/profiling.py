@@ -96,8 +96,8 @@ class Profiling(object):
         max_misses = 10
         min_m = 4
         n = 4
-        max_n = 100
-        max_m = 100
+        max_n = 1000
+        max_m = 1000
 
         while n < max_n:
             m = min_m
@@ -130,14 +130,16 @@ class Profiling(object):
         return results
 
     def generate_n_m_incrementally(self, filename):
+        # params
+        max_misses = 10
+        min_m = 4
+        n = 4
+        max_n = 1000
+        max_m = 1000
+
         output = Out()
         sat = Sat()
         results = [['key', 'n', 'm', 'misses', 'vTime']]
-        max_misses = 10
-        min_m = 100
-        n = 99
-        max_n = 100
-        max_m = 200
 
         while n < max_n:
             m = min_m

@@ -17,11 +17,12 @@ class Controller(object):
         # results = sat.generate_systems_stats()
         # data = self.generate_n_m()
         data = self.generate_n_m_incrementally()
-        # data = self.load_n_m()
+        data = self.load_n_m()
         self.plot_graph_3d(data)
 
     def generate_n_m(self):
         output = Out()
+        data = self.generate_n_m()
         output.update_file('results.txt', data)
         data = output.read_from_file('results.txt')
         return data
