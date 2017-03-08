@@ -15,9 +15,10 @@ class Controller(object):
         sat = Sat()
         bfr = BruteForce()
         # results = sat.generate_systems_stats()
-        data = self.generate_n_m()
+        # data = self.generate_n_m()
         # data = self.generate_n_m_incrementally()
-        data = self.load_n_m()
+        data = self.generate_n_m_semi_incrementally()
+	data = self.load_n_m()
         self.plot_graph_3d(data)
 
     def generate_n_m(self):
