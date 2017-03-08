@@ -176,7 +176,7 @@ class Profiling(object):
         # params
         max_misses = 10
         min_m = 4
-        n = 4
+        n = 55
         max_n = 1000
         max_m = 1000
 
