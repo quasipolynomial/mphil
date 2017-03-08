@@ -10,3 +10,6 @@ dotty ...
 
 # How to use cryptominisat
 cryptominisat_simple -verb=0 [filename]
+
+# Install
+https://github.com/msoos/cryptominisat.git
