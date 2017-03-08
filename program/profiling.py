@@ -172,6 +172,50 @@ class Profiling(object):
 
         return results
 
+    def generate_n_m_semi_incrementally(self, filename):
+        # params
+        max_misses = 10
+        min_m = 4
+        n = 4
+        max_n = 1000
+        max_m = 1000
+
+        output = Out()
+        sat = Sat()
+        results = [['key', 'n', 'm', 'misses', 'vTime']]
+
+        while n < max_n:
+            m = min_m
+            n += 1
+            misses = 0
+
+            while m < max_m:
+                validation_start = timeit.default_timer()
+                m += 1
+                eq = sat.generate_rand_unique_system(n, m)
+                key = `n` + ':' + `m`
+
+                if eq:
+                    print "Found: ", n, m
+                    validation_time = timeit.default_timer() - validation_start
+                    misses = 0
+                    results.append([key, n,m,misses, validation_time])
+
+                elif max_misses == misses:
+                    # print "Skipping: ", n, m
+                    misses = 0
+                    results.append([key, n,m,misses, -1])
+                    continue
+
+                else:
+                    # print 'Couldnt find for ' + `m` + ' Misses ' + `misses`
+                    misses += 1
+                    m -= 1
+
+            output.update_file(filename, results)
+
+        return results
+
     def ppprint(self, data):
         pp = pprint.PrettyPrinter(depth=6)
         pp.pprint(data)

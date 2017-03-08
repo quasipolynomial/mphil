@@ -13,3 +13,10 @@ cryptominisat_simple -verb=0 [filename]
 
 # Install
 https://github.com/msoos/cryptominisat.git
+
+# Python libaries pip install
+numpy
+cryptominisat
+matplotlib
+# apt
+python-tk
