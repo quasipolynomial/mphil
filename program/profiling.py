@@ -190,8 +190,11 @@ class Profiling(object):
             misses = 0
 
             while m < max_m:
-                validation_start = timeit.default_timer()
                 m += 1
+                if 4 < m/n:
+                    break
+
+                validation_start = timeit.default_timer()
                 eq = sat.generate_rand_unique_system(n, m)
                 key = `n` + ':' + `m`
 
