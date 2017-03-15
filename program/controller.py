@@ -39,7 +39,7 @@ class Controller(object):
     def generate_n_m_semi_incrementally(self):
         pro = Profiling()
         output = Out()
-        pro.generate_n_m_semi_incrementa    lly('results.txt')
+        pro.generate_n_m_semi_incrementally('results.txt')
         data = output.read_from_file('results.txt')
         return data
 
