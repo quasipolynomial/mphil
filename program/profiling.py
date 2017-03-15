@@ -176,7 +176,8 @@ class Profiling(object):
         # params
         max_misses = 10
         min_m = 4
-        n = 4
+        # n = 4
+        n = 250
         max_n = 1000
         max_m = 1000
 
@@ -191,6 +192,9 @@ class Profiling(object):
 
             while m < max_m:
                 m += 1
+                if m < n:
+                    continue
+
                 if 4 < m/n:
                     break
 
