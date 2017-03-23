@@ -3,6 +3,7 @@
 
 # How to use nauty - see dreadnaut pdf
 dreadnaut
+sudo apt install nauty
 
 # How to use graphviz
 man graphviz
