@@ -181,6 +181,7 @@ class Profiling(object):
         output = Out()
         sat = Sat()
         results = [['key', 'n', 'm', 'misses', 'vTime']]
+        unique_systems = []
 
         while n < max_n:
             m = min_m
@@ -203,7 +204,8 @@ class Profiling(object):
                     print "Found: ", n, m
                     validation_time = timeit.default_timer() - validation_start
                     misses = 0
-                    results.append([key, n,m,misses, validation_time])
+                    results.append([key, n, m, misses, validation_time])
+                    # unique_systems.append([key, n, m, eq])
 
                 elif max_misses == misses:
                     # print "Skipping: ", n, m
@@ -217,6 +219,7 @@ class Profiling(object):
                     m -= step
 
             output.update_file(filename, results)
+            # output.update_file("unique_systems.txt", unique_systems)
 
         return results
 
