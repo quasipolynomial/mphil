@@ -173,9 +173,9 @@ class Profiling(object):
         step = 5
         max_misses = 10
         min_m = 5
-        n = 5
-        max_n = 1000
-        max_m = 1000
+        n = 150
+        max_n = 2000
+        max_m = 2000
 
 
         output = Out()
