@@ -2,16 +2,16 @@ from sys import argv
 import pickle
 import os.path
 import operator
-
+import json
 
 class Out(object):
     def write_to_file(self, filename, data):
-        with open(filename, 'wb') as f:
-            pickle.dump(data, f)
+        with open(filename, 'w') as outfile:
+            json.dump(data, outfile)
 
     def read_from_file(self, filename):
-        with open(filename, 'rb') as f:
-            data = pickle.load(f)
+        with open(filename, 'r') as outfile:
+            data = json.load(outfile)
         return data
 
     def update_file(self, filename, data):

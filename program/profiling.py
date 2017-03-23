@@ -20,13 +20,9 @@ class Profiling(object):
                     vTime = self.validate_system(system)
                     homSystems.append(system)
                     print 'found n:' + `n` + ' m:' + `m`
-                # print system
 
                 results.append([n, m, round(fTime, 3), round(vTime, 3)])
 
-        # pp = pprint.PrettyPrinter(depth=6)
-        # pp.pprint(results)`
-        # pp.pprint(homSystems)
         return homSystems
 
     def generate_equation(self, n, m):
@@ -81,7 +77,7 @@ class Profiling(object):
 
         try:
             validationStart = timeit.default_timer()
-            sat.is_system_uniquely_satisfiable(system)
+            sat.is_system_uniquely_satisfiable_ban(system)
             validationTime = timeit.default_timer() - validationStart
 
         except Exception, msg:
@@ -174,12 +170,13 @@ class Profiling(object):
 
     def generate_n_m_semi_incrementally(self, filename):
         # params
+        step = 5
         max_misses = 10
-        min_m = 4
-        # n = 4
-        n = 250
+        min_m = 5
+        n = 5
         max_n = 1000
         max_m = 1000
+
 
         output = Out()
         sat = Sat()
@@ -187,11 +184,11 @@ class Profiling(object):
 
         while n < max_n:
             m = min_m
-            n += 1
+            n += step
             misses = 0
 
             while m < max_m:
-                m += 1
+                m += step
                 if m < n:
                     continue
 
@@ -217,7 +214,7 @@ class Profiling(object):
                 else:
                     # print 'Couldnt find for ' + `m` + ' Misses ' + `misses`
                     misses += 1
-                    m -= 1
+                    m -= step
 
             output.update_file(filename, results)
 

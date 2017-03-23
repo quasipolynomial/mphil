@@ -8,18 +8,19 @@ import pprint
 import random
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from pycryptosat import Solver
 
 
 class Controller(object):
     def __init__(self):
         sat = Sat()
-        bfr = BruteForce()
+        # bfr = BruteForce()
         # results = sat.generate_systems_stats()
         # data = self.generate_n_m()
         # data = self.generate_n_m_incrementally()
         data = self.generate_n_m_semi_incrementally()
         # data = self.load_n_m()
-        self.plot_graph_3d(data)
+        # self.plot_graph_3d(data)
 
     def generate_n_m(self):
         output = Out()

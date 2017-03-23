@@ -9,7 +9,7 @@ class Sat(object):
     def test_case(self):
         # Init
         solver = Solver()
-        variables = 5
+        n = 5
         system = [
             [1, 2, 3],
             [2, 3, 4],
@@ -24,7 +24,7 @@ class Sat(object):
 
         # Exec
         sat, sol = solver.solve()
-        uniqueSat = self.is_system_uniquely_satisfiable(system)
+        uniqueSat = self.is_system_uniquely_satisfiable_ban(system, n)
 
     def generate_rand_system(self, n, m):
         """Generates a random homogenous system
@@ -61,7 +61,7 @@ class Sat(object):
             if tries == 0:
                 return False
             elif system:
-                if self.is_system_uniquely_satisfiable(system):
+                if self.is_system_uniquely_satisfiable_ban(system, n):
                     return system
                 else:
                     tries -= 1
@@ -127,10 +127,13 @@ class Sat(object):
         return pool
 
     def is_system_uniquely_satisfiable(self, system):
-        """Tests if a matrix is uniquely satisfiable
+        """
+        Tests unique satisfiable by iterating variables
+        Buggy due to missing variables
         """
 
         pool = self.generate_pool(system)
+        pool.sort()
 
         for i in pool:
             solver = Solver()
@@ -140,8 +143,26 @@ class Sat(object):
 
             solver.add_xor_clause([i], True)
             sat, sol = solver.solve()
+            print i
 
             if sat:
                 return False
 
         return True
+
+    def is_system_uniquely_satisfiable_ban(self, system, n):
+        """
+        Tests unique satisfiable by banning all zero solution
+        """
+
+        # Prep solver
+        solver = Solver()
+        for clause in system:
+            solver.add_xor_clause(clause, False)
+
+        # Ban all zero
+        solver.add_clause(range(1, n+1))
+
+        sat, sol = solver.solve()
+
+        return not sat
