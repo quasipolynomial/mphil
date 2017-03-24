@@ -11,7 +11,7 @@ class Gi(object):
     def run_all_graphs(self):
         out = Out()
         graphs = self.load_graphs()
-        results = self.run_graphs(graphs)
+        results = self.run_outstanding_graphs(graphs)
         # results = {
         #     "latin-sw": out.read_from_file("./../assets/graphs_run/latin-sw.txt")
         # }
@@ -44,13 +44,23 @@ class Gi(object):
         out = Out()
         results = {}
         for graph in graphs:
-            if graph in ["ag", "cfi", "latin-sw", "mz-aug2", "pp", "triang"]:
+            result = self.run_graph(graphs, graph)
+            results[graph] = result
+            out.write_to_file("./../assets/graphs_run/" + graph + ".txt", result)
+        return results
+
+    def run_outstanding_graphs(self, graphs):
+        out = Out()
+        results = {}
+        run = self.run_command("ls -v ./../assets/graphs_run/")
+        for graph in graphs:
+            if graph+".txt" in run:
                 continue
 
             result = self.run_graph(graphs, graph)
             results[graph] = result
             out.write_to_file("./../assets/graphs_run/" + graph + ".txt", result)
-        return results
+
 
     def run_graph(self, graphs, graph):
         results = []
@@ -61,8 +71,8 @@ class Gi(object):
 
     def run_graph_instance(self, graph, graph_instance):
         path = "./../assets/graphs/" + graph + "/" + graph_instance
-        stdout, stderr = self.run_process("dreadnaut", 'At -a V=0 -m <' + path + " x q")
-        nodes = re.search("(n=?)=\d+", ' '.join(self.run_command("head " + path))).group(0)[2:]
+        stdout, stderr = self.run_process("dreadnaut", 'At -a V=0 -m <"' + path + '" x q')
+        nodes = re.search("(n=?)=\d+", ' '.join(self.run_command("head '" + path+"'"))).group(0)[2:]
         time = re.search("(time=?) = \d+.\d+\d+", stdout).group(0)[7:]
 
         return {
