@@ -170,12 +170,12 @@ class Profiling(object):
 
     def generate_n_m_semi_incrementally(self, filename):
         # params
-        step = 5
+        step = 100
         max_misses = 10
         min_m = 5
-        n = 150
-        max_n = 2000
-        max_m = 2000
+        n = 1000
+        max_n = 3000
+        max_m = 3000
 
 
         output = Out()

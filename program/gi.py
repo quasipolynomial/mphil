@@ -12,9 +12,7 @@ class Gi(object):
         out = Out()
         graphs = self.load_graphs()
         results = self.run_outstanding_graphs(graphs)
-        # results = {
-        #     "latin-sw": out.read_from_file("./../assets/graphs_run/latin-sw.txt")
-        # }
+        # results = self.load_results()
         # self.print_results(results)
 
     def run_command(self, command):
@@ -40,6 +38,16 @@ class Gi(object):
                 graphs[graph].append(graph_instance)
         return graphs
 
+    def load_results(self):
+        out = Out()
+        graphs = self.load_graphs()
+        results = {}
+        run = self.run_command("ls -v ./../assets/graphs_run/")
+        for graph in graphs:
+            if graph + ".txt" in run:
+                results[graph] = out.read_from_file("./../assets/graphs_run/"+graph+".txt")
+        return results
+
     def run_graphs(self, graphs):
         out = Out()
         results = {}
@@ -54,13 +62,12 @@ class Gi(object):
         results = {}
         run = self.run_command("ls -v ./../assets/graphs_run/")
         for graph in graphs:
-            if graph+".txt" in run:
+            if graph + ".txt" in run:
                 continue
 
             result = self.run_graph(graphs, graph)
             results[graph] = result
             out.write_to_file("./../assets/graphs_run/" + graph + ".txt", result)
-
 
     def run_graph(self, graphs, graph):
         results = []
@@ -72,7 +79,7 @@ class Gi(object):
     def run_graph_instance(self, graph, graph_instance):
         path = "./../assets/graphs/" + graph + "/" + graph_instance
         stdout, stderr = self.run_process("dreadnaut", 'At -a V=0 -m <"' + path + '" x q')
-        nodes = re.search("(n=?)=\d+", ' '.join(self.run_command("head '" + path+"'"))).group(0)[2:]
+        nodes = re.search("(n=?)=\d+", ' '.join(self.run_command("head '" + path + "'"))).group(0)[2:]
         time = re.search("(time=?) = \d+.\d+\d+", stdout).group(0)[7:]
 
         return {
@@ -103,9 +110,12 @@ class Gi(object):
         plt.plot(x, y)
         plt.scatter(x, y)
         plt.ylim(ymin=0)
-        plt.yticks(np.arange(0, float(max(y)) + 0.01, 0.01))
+        # plt.yticks(np.arange(0, float(max(y)) + 0.01, 0.01))
         plt.grid()
-        plt.show()
+        # plt.show()
+        plt.savefig("./../assets/graphs_run/"+title)
+        plt.clf()
+
 
 
 gi = Gi()

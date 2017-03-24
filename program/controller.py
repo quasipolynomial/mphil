@@ -74,13 +74,14 @@ class Controller(object):
                 x.append(r[1])
                 y.append(r[2])
                 z.append(r[4])
+                print r[0], r[4]
 
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         ax.scatter(x, y, z, c='r', marker='o')
         ax.set_xlabel('N Values')
         ax.set_ylabel('M Values')
-        ax.set_zlabel('Time')
+        ax.set_zlabel('Time (sec)')
         plt.show()
 
     def main(self):
