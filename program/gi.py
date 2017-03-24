@@ -44,6 +44,9 @@ class Gi(object):
         out = Out()
         results = {}
         for graph in graphs:
+            if graph in ["ag", "cfi", "latin-sw", "mz-aug2", "pp", "triang"]:
+                continue
+
             result = self.run_graph(graphs, graph)
             results[graph] = result
             out.write_to_file("./../assets/graphs_run/" + graph + ".txt", result)
@@ -59,7 +62,7 @@ class Gi(object):
     def run_graph_instance(self, graph, graph_instance):
         path = "./../assets/graphs/" + graph + "/" + graph_instance
         stdout, stderr = self.run_process("dreadnaut", 'At -a V=0 -m <' + path + " x q")
-        nodes = re.search("(n=?)=\d+", self.run_command("head " + path)[0]).group(0)[2:]
+        nodes = re.search("(n=?)=\d+", ' '.join(self.run_command("head " + path))).group(0)[2:]
         time = re.search("(time=?) = \d+.\d+\d+", stdout).group(0)[7:]
 
         return {
