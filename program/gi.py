@@ -5,6 +5,7 @@ import re
 import numpy as np
 import matplotlib.pyplot as plt
 from out import Out
+import signal
 
 
 class Gi(object):
@@ -45,7 +46,7 @@ class Gi(object):
         run = self.run_command("ls -v ./../assets/graphs_run/")
         for graph in graphs:
             if graph + ".txt" in run:
-                results[graph] = out.read_from_file("./../assets/graphs_run/"+graph+".txt")
+                results[graph] = out.read_from_file("./../assets/graphs_run/" + graph + ".txt")
         return results
 
     def run_graphs(self, graphs):
@@ -76,11 +77,33 @@ class Gi(object):
             results.append(self.run_graph_instance(graph, graph_instance))
         return results
 
+    def run_graph_instance_timeout(self, graph, graph_instance):
+        path = "./../assets/graphs/" + graph + "/" + graph_instance
+        nodes = re.search("(n=?)=\d+", ' '.join(self.run_command("head '" + path + "'"))).group(0)[2:]
+        signal.signal(signal.SIGALRM, signal_handler)
+        signal.alarm(1)
+        try:
+            stdout, stderr = self.run_process("dreadnaut", 'At -a V=0 -m <"' + path + '" x q')
+            time = re.search("(time=?) = \d+.\d+\d+", stdout).group(0)[7:]
+
+        except Exception, msg:
+            print "Timed out: Took too long to validate"
+            time = -1
+
+        return {
+            "name": graph_instance,
+            "nodes": nodes,
+            "time": time
+        }
+
     def run_graph_instance(self, graph, graph_instance):
         path = "./../assets/graphs/" + graph + "/" + graph_instance
         stdout, stderr = self.run_process("dreadnaut", 'At -a V=0 -m <"' + path + '" x q')
         nodes = re.search("(n=?)=\d+", ' '.join(self.run_command("head '" + path + "'"))).group(0)[2:]
-        time = re.search("(time=?) = \d+.\d+\d+", stdout).group(0)[7:]
+        if stdout:
+            time = re.search("(time=?) = \d+.\d+\d+", stdout).group(0)[7:]
+        else:
+            time = -1
 
         return {
             "name": graph_instance,
@@ -113,9 +136,12 @@ class Gi(object):
         # plt.yticks(np.arange(0, float(max(y)) + 0.01, 0.01))
         plt.grid()
         # plt.show()
-        plt.savefig("./../assets/graphs_run/"+title)
+        plt.savefig("./../assets/graphs_run/" + title)
         plt.clf()
 
+
+def signal_handler(signum, frame):
+    raise Exception("Timed out!")
 
 
 gi = Gi()
