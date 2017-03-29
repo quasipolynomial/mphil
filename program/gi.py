@@ -1,148 +1,101 @@
-import subprocess as sub
-import os
-import subprocess
 import re
-import numpy as np
-import matplotlib.pyplot as plt
-from out import Out
 import signal
+from handlers.exceptionhandler import signal_handler, TimeoutError
+from handlers.filehandler import FileHandler
+from handlers.processhandler import ProcessHandler
 
 
 class Gi(object):
-    def run_all_graphs(self):
-        out = Out()
+    def generate_graphs(self, **kwargs):
+        """
+        Run all/some graphs on dreadnaut
+        :param kwargs: 
+        :return: 
+        """
+        # Init
+        fh = FileHandler()
+        ph = ProcessHandler()
+        results = {}
         graphs = self.load_graphs()
-        results = self.run_outstanding_graphs(graphs)
-        # results = self.load_results()
-        # self.print_results(results)
+        run = ph.run_command("ls -v ./../assets/graphs_run/")
 
-    def run_command(self, command):
-        p = os.popen(command, "r")
-        out = []
-        while 1:
-            line = p.readline()
-            if not line:
-                break
-            out.append(line.rstrip())
-        return out
+        for graph in graphs:
+            # Skip existing graphs
+            if kwargs.get("outstanding", False) and graph + ".txt" in run:
+                continue
 
-    def run_process(self, command, input):
-        process = subprocess.Popen([command], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                   stderr=subprocess.PIPE)
-        return process.communicate(input=input)
+            # Gather results
+            graph_results = []
+            for graph_instance in graphs[graph]:
+                print graph_instance
+                graph_results.append(self.run_graph_instance(graph, graph_instance, **kwargs))
+            results[graph] = graph_results
+
+            # Save
+            if kwargs.get("save", False):
+                fh.write_to_file("./../assets/graphs_run/" + graph + ".txt", graph_results)
+        return results
+
+    def run_graph_instance(self, graph, graph_instance, **kwargs):
+        """
+        Run a specific instance on dreadnaut
+        :param graph: 
+        :param graph_instance: 
+        :param kwargs: 
+        :return: 
+        """
+        # Init
+        ph = ProcessHandler()
+        path = "./../assets/graphs/" + graph + "/" + graph_instance
+        nodes = re.search("(n=?)=\d+", ' '.join(ph.run_command("head '" + path + "'"))).group(0)[2:]
+        process = ph.open_process("dreadnaut")
+
+        # Set timeout
+        signal.signal(signal.SIGALRM, signal_handler)
+        signal.alarm(kwargs.get("timeout", 0))
+
+        # Gather results
+        try:
+            stdout, stderr = process.communicate(input='At -a V=0 -m <"' + path + '" x q')
+            time = re.search('(time=?) = \d+.\d+\d+', stdout).group(0)[7:] if stdout else -1
+        except TimeoutError:
+            print "Timed out: Took too long to validate"
+            time = -1
+            process.kill()
+            process.terminate()
+        finally:
+            signal.alarm(0)
+
+        return {
+            "name": graph_instance,
+            "nodes": nodes,
+            "time": time
+        }
 
     def load_graphs(self):
+        """
+        Load graph instances from package
+        :return: 
+        """
+        ph = ProcessHandler()
         graphs = {}
-        for graph in self.run_command('ls -v ./../assets/graphs/'):
+        for graph in ph.run_command('ls -v ./../assets/graphs/'):
             graphs[graph] = []
-            for graph_instance in self.run_command('ls -v ./../assets/graphs/' + graph):
+            for graph_instance in ph.run_command('ls -v ./../assets/graphs/' + graph):
                 graphs[graph].append(graph_instance)
         return graphs
 
     def load_results(self):
-        out = Out()
+        """
+        Load results from tests
+        :return: 
+        """
+        ph = ProcessHandler()
+        fh = FileHandler()
+        results = {}
         graphs = self.load_graphs()
-        results = {}
-        run = self.run_command("ls -v ./../assets/graphs_run/")
+        run = ph.run_command("ls -v ./../assets/graphs_run/")
         for graph in graphs:
             if graph + ".txt" in run:
-                results[graph] = out.read_from_file("./../assets/graphs_run/" + graph + ".txt")
+                results[graph] = fh.read_from_file("./../assets/graphs_run/" + graph + ".txt")
         return results
-
-    def run_graphs(self, graphs):
-        out = Out()
-        results = {}
-        for graph in graphs:
-            result = self.run_graph(graphs, graph)
-            results[graph] = result
-            out.write_to_file("./../assets/graphs_run/" + graph + ".txt", result)
-        return results
-
-    def run_outstanding_graphs(self, graphs):
-        out = Out()
-        results = {}
-        run = self.run_command("ls -v ./../assets/graphs_run/")
-        for graph in graphs:
-            if graph + ".txt" in run:
-                continue
-
-            result = self.run_graph(graphs, graph)
-            results[graph] = result
-            out.write_to_file("./../assets/graphs_run/" + graph + ".txt", result)
-
-    def run_graph(self, graphs, graph):
-        results = []
-        for graph_instance in graphs[graph]:
-            print graph_instance
-            results.append(self.run_graph_instance(graph, graph_instance))
-        return results
-
-    def run_graph_instance_timeout(self, graph, graph_instance):
-        path = "./../assets/graphs/" + graph + "/" + graph_instance
-        nodes = re.search("(n=?)=\d+", ' '.join(self.run_command("head '" + path + "'"))).group(0)[2:]
-        signal.signal(signal.SIGALRM, signal_handler)
-        signal.alarm(1)
-        try:
-            stdout, stderr = self.run_process("dreadnaut", 'At -a V=0 -m <"' + path + '" x q')
-            time = re.search("(time=?) = \d+.\d+\d+", stdout).group(0)[7:]
-
-        except Exception, msg:
-            print "Timed out: Took too long to validate"
-            time = -1
-
-        return {
-            "name": graph_instance,
-            "nodes": nodes,
-            "time": time
-        }
-
-    def run_graph_instance(self, graph, graph_instance):
-        path = "./../assets/graphs/" + graph + "/" + graph_instance
-        stdout, stderr = self.run_process("dreadnaut", 'At -a V=0 -m <"' + path + '" x q')
-        nodes = re.search("(n=?)=\d+", ' '.join(self.run_command("head '" + path + "'"))).group(0)[2:]
-        if stdout:
-            time = re.search("(time=?) = \d+.\d+\d+", stdout).group(0)[7:]
-        else:
-            time = -1
-
-        return {
-            "name": graph_instance,
-            "nodes": nodes,
-            "time": time
-        }
-
-    def print_results(self, results):
-        for i in results:
-            x_axis = []
-            y_axis = []
-            for result in results[i]:
-                print result
-                if result['nodes'] in x_axis:
-                    pos = x_axis.index(result["nodes"])
-                    # y_axis[pos] = "%.2f" % (float(y_axis[pos]) + float(result["time"]) * 0.5) # avg
-                    y_axis[pos] = y_axis[pos] if y_axis[pos] > result["time"] else result["time"]
-                    continue
-                x_axis.append(result['nodes'])
-                y_axis.append(result['time'])
-            self.plot_graph_2d(i, x_axis, y_axis)
-
-    def plot_graph_2d(self, title, x, y):
-        plt.title(title)
-        plt.xlabel('nodes')
-        plt.ylabel('time (sec)')
-        plt.plot(x, y)
-        plt.scatter(x, y)
-        plt.ylim(ymin=0)
-        # plt.yticks(np.arange(0, float(max(y)) + 0.01, 0.01))
-        plt.grid()
-        # plt.show()
-        plt.savefig("./../assets/graphs_run/" + title)
-        plt.clf()
-
-
-def signal_handler(signum, frame):
-    raise Exception("Timed out!")
-
-
-gi = Gi()
-gi.run_all_graphs()

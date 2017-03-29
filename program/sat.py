@@ -1,30 +1,94 @@
-from pycryptosat import Solver
-import numpy
-import copy
 import random
-import pprint
+import timeit
+from pycryptosat import Solver
+from handlers.filehandler import FileHandler
 
 
 class Sat(object):
-    def test_case(self):
-        # Init
-        solver = Solver()
-        n = 5
-        system = [
-            [1, 2, 3],
-            [2, 3, 4],
-            [3, 4, 5],
-            [1, 2, 5],
-            [2, 3, 5],
-        ]  # Assume clause, False <=> x, y, z = 0
+    def generate_systems(self, **kwargs):
+        # init
+        fh = FileHandler()
+        results = [['key', 'n', 'm', 'tries', 'vTime']]
+        systems = []
 
-        # Build
-        for clause in system:
-            solver.add_xor_clause(clause, False)
+        # params
+        step = kwargs.get("step", 1)
+        max_tries = kwargs.get("max_tries", 10)
+        min_m = kwargs.get("min_m", 4)
+        n = kwargs.get("n", 4)
+        max_n = kwargs.get("max_n", 100)
+        max_m = kwargs.get("max_m", 100)
+        save_dir = "./../assets/sat_run/{0}-n-{1}_{2}-m-{3}_step-{4}".format(n, max_n, min_m, max_m, step)
+        save_system_location = save_dir+"/systems"
+        save_results_location = save_dir+"/results"
+        save_systems = kwargs.get("save_systems", False)
+        save_results = kwargs.get("save_results", False)
+        bound = kwargs.get("bound", True)
 
-        # Exec
-        sat, sol = solver.solve()
-        uniqueSat = self.is_system_uniquely_satisfiable_ban(system, n)
+        # Prep folder
+        fh.makedir(save_dir)
+
+        while n < max_n:
+            m = min_m
+            n += step
+            tries = 0
+            smallest_m_found = False
+            largest_m_found = False
+
+            while m < max_m:
+                m += step
+                if m < n:
+                    m = n
+
+                if 4 < m / n:
+                    break
+
+                validation_start = timeit.default_timer()
+                eq = self.generate_rand_unique_system(n, m)
+                key = `n` + ':' + `m`
+
+                if eq:
+                    # Update the lower bound
+                    if bound and not smallest_m_found:
+                        min_m = m - step
+                        smallest_m_found = True
+
+                    # Record times
+                    print "Found: ", n, m
+                    validation_time = timeit.default_timer() - validation_start
+                    tries = 0
+                    results.append([key, n, m, tries, validation_time])
+                    if save_systems:
+                        systems.append([key, n, m, eq])
+
+                elif max_tries == tries:
+                    # print "Skipping: ", n, m
+                    tries = 0
+                    results.append([key, n, m, tries, -1])
+                    continue
+
+                else:
+                    # print 'Couldnt find for ' + `m` + ' Misses ' + `tries`
+                    print n, "-", m, "-missing"
+                    tries += 1
+                    m -= step
+
+            if save_systems:
+                print "Saving systems..."
+                save_systems_time = self.run_function_timed(fh.update_file, (save_system_location, systems))
+                print "Time taken: ", save_systems_time
+            if save_results:
+                print "Saving results..."
+                save_results_time = self.run_function_timed(fh.update_file, (save_results_location, results))
+                print "Time taken: ", save_results_time
+        return results
+
+    def run_function_timed(self, f, args):
+        # print args
+        start = timeit.default_timer()
+        f(*args)
+        time = timeit.default_timer() - start
+        return time
 
     def generate_rand_system(self, n, m):
         """Generates a random homogenous system
@@ -50,7 +114,8 @@ class Sat(object):
         return system
 
     def generate_rand_unique_system(self, n, m):
-        """Generates a random homogenous system that is uniquely satisfiable
+        """
+        Generates a random homogenous system that is uniquely satisfiable
         """
 
         tries = 3
@@ -61,7 +126,7 @@ class Sat(object):
             if tries == 0:
                 return False
             elif system:
-                if self.is_system_uniquely_satisfiable_ban(system, n):
+                if self.is_system_uniquely_satisfiable(system, n):
                     return system
                 else:
                     tries -= 1
@@ -69,7 +134,8 @@ class Sat(object):
                 tries -= 1
 
     def generate_systems_fix_n(self):
-        """Generate a system forcing n to stay static and allow m to vary
+        """
+        Generate a system forcing n to stay static and allow m to vary
         Give up after t tries
         """
 
@@ -93,7 +159,8 @@ class Sat(object):
                     return
 
     def generate_systems_fix_n_force(self):
-        """Generate a system forcing n to stay static and allowing m to vary
+        """
+        Generate a system forcing n to stay static and allowing m to vary
         Don't give up
         """
         sat = Sat()
@@ -113,44 +180,7 @@ class Sat(object):
                 m -= 1
                 print 'Couldnt find for ' + `m` + ' Misses ' + `misses`
 
-    def generate_pool(self, matrix):
-        """Gets a pool of variables used in a matrix
-        """
-
-        pool = []
-
-        for clause in matrix:
-            for i in clause:
-                if i not in pool:
-                    pool.append(i)
-
-        return pool
-
-    def is_system_uniquely_satisfiable(self, system):
-        """
-        Tests unique satisfiable by iterating variables
-        Buggy due to missing variables
-        """
-
-        pool = self.generate_pool(system)
-        pool.sort()
-
-        for i in pool:
-            solver = Solver()
-
-            for clause in system:
-                solver.add_xor_clause(clause, False)
-
-            solver.add_xor_clause([i], True)
-            sat, sol = solver.solve()
-            print i
-
-            if sat:
-                return False
-
-        return True
-
-    def is_system_uniquely_satisfiable_ban(self, system, n):
+    def is_system_uniquely_satisfiable(self, system, n):
         """
         Tests unique satisfiable by banning all zero solution
         """
@@ -161,8 +191,69 @@ class Sat(object):
             solver.add_xor_clause(clause, False)
 
         # Ban all zero
-        solver.add_clause(range(1, n+1))
+        solver.add_clause(range(1, n + 1))
 
         sat, sol = solver.solve()
 
         return not sat
+
+    def find_equations(self, n, m):
+        clauses = self.find_clauses(n)
+        systems = self.find_systems(clauses, n, m)
+        return systems
+
+    def find_clauses(n):
+        pool = range(1, n + 1)
+        clauses = []
+        for x in pool:
+            for y in pool:
+                for z in pool:
+                    if x == y or x == z or y == z:
+                        continue
+
+                    clause = [x, y, z]
+                    clause.sort()
+
+                    if clause not in clauses:
+                        clauses.append(clause)
+        return clauses
+
+    def find_system(self, clauses, system, n, m, depth):
+        systems = []
+        if depth > m:
+            # print 'M: '+`m`
+            # print 'Depth: '+`depth`
+            # print 'something wierd is happening'
+            # print 'System: '+`system`
+            # print 'clauses: '+`clauses`
+            return False
+
+        # If length of system = m , then we have long enough system
+        if len(system) == m:
+            for i in range(0, len(system) - 1):
+                if system[i] > system[i + 1]:
+                    return False
+            # print system
+            sat = Sat()
+            if sat.is_system_uniquely_satisfiable(system):
+
+                return system
+            else:
+                return False
+
+        # Else system is not long enough, we need to append to system
+        else:
+            # For each clause not in the system, add to system
+            for clause in clauses:
+                tail = list(clauses)
+                tail.remove(clause)
+                if clause not in system:
+                    systemTemp = list(system)
+                    systemTemp.append(clause)
+                    sys = self.find_system(tail, systemTemp, n, m, depth + 1)
+                    if sys:
+                        return sys
+        return False
+
+    def find_systems(self, clauses, n, m):
+        return self.find_system(clauses, [], n, m, 0)

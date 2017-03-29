@@ -1,10 +1,10 @@
-from sys import argv
-import pickle
+import os
 import os.path
 import operator
 import json
 
-class Out(object):
+
+class FileHandler(object):
     def write_to_file(self, filename, data):
         with open(filename, 'w') as outfile:
             json.dump(data, outfile)
@@ -15,7 +15,6 @@ class Out(object):
         return data
 
     def update_file(self, filename, data):
-
         if os.path.isfile(filename):
             old_data = self.read_from_file(filename)
 
@@ -35,5 +34,6 @@ class Out(object):
 
         return data
 
-
-
+    def makedir(self, dir):
+        if not os.path.exists(dir):
+            os.makedirs(dir)
