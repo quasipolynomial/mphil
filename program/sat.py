@@ -33,7 +33,8 @@ class Sat(object):
             n += step
             tries = 0
             smallest_m_found = False
-            largest_m_found = False
+            result = []
+            system = []
 
             while m < max_m:
                 m += step
@@ -58,13 +59,16 @@ class Sat(object):
                     validation_time = timeit.default_timer() - validation_start
                     tries = 0
                     results.append([key, n, m, tries, validation_time])
+                    result.append([key, n, m, tries, validation_time])
                     if save_systems:
                         systems.append([key, n, m, eq])
+                        system.append([key, n, m, eq])
 
                 elif max_tries == tries:
                     # print "Skipping: ", n, m
                     tries = 0
                     results.append([key, n, m, tries, -1])
+                    result.append([key, n, m, tries, -1])
                     continue
 
                 else:
@@ -75,11 +79,11 @@ class Sat(object):
 
             if save_systems:
                 print "Saving systems..."
-                save_systems_time = self.run_function_timed(fh.update_file, (save_system_location, systems))
+                save_systems_time = self.run_function_timed(fh.update_file, (save_system_location, system))
                 print "Time taken: ", save_systems_time
             if save_results:
                 print "Saving results..."
-                save_results_time = self.run_function_timed(fh.update_file, (save_results_location, results))
+                save_results_time = self.run_function_timed(fh.update_file, (save_results_location, result))
                 print "Time taken: ", save_results_time
         return results
 

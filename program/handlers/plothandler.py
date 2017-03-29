@@ -4,6 +4,8 @@ from mpl_toolkits.mplot3d import Axes3D
 
 class PlotHandler(object):
     def plot_graph_2d(self, title, x, y, **kwargs):
+        # TODO HEATMAP
+
         # labels
         plt.title(title)
         plt.xlabel(kwargs.get("x_label", "Set X"))
@@ -18,6 +20,7 @@ class PlotHandler(object):
                 plt.scatter(x, y)
         else:
             plt.plot(x, y)
+
         # Axis / Style
         plt.ylim(ymin=0)
         # plt.yticks(np.arange(0, float(max(y)) + 0.01, 0.01))
@@ -88,3 +91,4 @@ class PlotHandler(object):
                            scatter=True,
                            x_label="N Values",
                            y_label="M Values")
+        self.plot_graph_3d(data)

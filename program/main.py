@@ -16,13 +16,14 @@ class Main(object):
         fh = FileHandler()
         data = sat.generate_systems(n=0,
                                     min_m=0,
-                                    max_n=1000,
-                                    max_m=1000,
-                                    step=10,
+                                    max_n=10000,
+                                    max_m=10000,
+                                    step=100,
                                     save_results=True,
                                     save_systems=True)
-        data = fh.read_from_file('./../assets/sat_run/0-n-200_0-m-200_step-5/results')
-        ph.plot_sat_results(data)
+        # data = fh.read_from_file('./../assets/sat_run/0-n-10000_0-m-10000_step-100/systems',
+        #                          aggregate=True)
+        # ph.plot_sat_results(data)
         # step = 100
         # max_misses = 10
         # min_m = 5
