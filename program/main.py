@@ -37,7 +37,7 @@ class Main(object):
     def generate_graphs(self):
         ph = PlotHandler()
         gi = Gi()
-        results = gi.generate_graphs(outstanding=False, timeout=False, save=True)
+        results = gi.generate_graphs(outstanding=True, timeout=False, save=True)
         ph.plot_gi_results(results, save=True)
         print results
 
