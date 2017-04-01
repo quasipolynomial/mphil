@@ -1,13 +1,29 @@
 import random
-import timeit
 from pycryptosat import Solver
 from handlers.filehandler import FileHandler
+from handlers.processhandler import ProcessHandler
+import operator
+from handlers.plothandler import PlotHandler
+import timeit
 
+
+# Todo gauss elim
+# Todo timeouts
+# Todo extending graphs (random ones)
+# Todo make birpartite graph check if has automorphisms
+#   auto, k locally, uniquely sat,
+#   Run on two different builds
+#   Save each system to file
+# Todo Rerun and find times
+#
+# DONE Todo random graphs
+# DONE Todo subsecond times
 
 class Sat(object):
     def generate_systems(self, **kwargs):
         # init
         fh = FileHandler()
+        ph = ProcessHandler()
         results = [['key', 'n', 'm', 'tries', 'vTime']]
         systems = []
 
@@ -19,8 +35,8 @@ class Sat(object):
         max_n = kwargs.get("max_n", 100)
         max_m = kwargs.get("max_m", 100)
         save_dir = "./../assets/sat_run/{0}-n-{1}_{2}-m-{3}_step-{4}".format(n, max_n, min_m, max_m, step)
-        save_system_location = save_dir+"/systems"
-        save_results_location = save_dir+"/results"
+        save_system_location = save_dir + "/systems"
+        save_results_location = save_dir + "/results"
         save_systems = kwargs.get("save_systems", False)
         save_results = kwargs.get("save_results", False)
         bound = kwargs.get("bound", True)
@@ -44,9 +60,9 @@ class Sat(object):
                 if 4 < m / n:
                     break
 
-                validation_start = timeit.default_timer()
-                eq = self.generate_rand_unique_system(n, m)
                 key = `n` + ':' + `m`
+                validation_start = timeit.default_timer()
+                generate_time, eq = ph.run_function_timed(self.generate_rand_system, (n, m), return_args=True)
 
                 if eq:
                     # Update the lower bound
@@ -58,8 +74,8 @@ class Sat(object):
                     print "Found: ", n, m
                     validation_time = timeit.default_timer() - validation_start
                     tries = 0
-                    results.append([key, n, m, tries, validation_time])
-                    result.append([key, n, m, tries, validation_time])
+                    results.append([key, n, m, tries, validation_time, generate_time])
+                    result.append([key, n, m, tries, validation_time, generate_time])
                     if save_systems:
                         systems.append([key, n, m, eq])
                         system.append([key, n, m, eq])
@@ -67,8 +83,8 @@ class Sat(object):
                 elif max_tries == tries:
                     # print "Skipping: ", n, m
                     tries = 0
-                    results.append([key, n, m, tries, -1])
-                    result.append([key, n, m, tries, -1])
+                    results.append([key, n, m, tries, -1, -1])
+                    result.append([key, n, m, tries, -1, -1])
                     continue
 
                 else:
@@ -79,20 +95,13 @@ class Sat(object):
 
             if save_systems:
                 print "Saving systems..."
-                save_systems_time = self.run_function_timed(fh.update_file, (save_system_location, system))
+                save_systems_time = ph.run_function_timed(fh.update_file, (save_system_location, system))
                 print "Time taken: ", save_systems_time
             if save_results:
                 print "Saving results..."
-                save_results_time = self.run_function_timed(fh.update_file, (save_results_location, result))
+                save_results_time = ph.run_function_timed(fh.update_file, (save_results_location, result))
                 print "Time taken: ", save_results_time
         return results
-
-    def run_function_timed(self, f, args):
-        # print args
-        start = timeit.default_timer()
-        f(*args)
-        time = timeit.default_timer() - start
-        return time
 
     def generate_rand_system(self, n, m):
         """Generates a random homogenous system
@@ -261,3 +270,61 @@ class Sat(object):
 
     def find_systems(self, clauses, n, m):
         return self.find_system(clauses, [], n, m, 0)
+
+    def compare_gauss(self, path):
+        ph = ProcessHandler()
+        fh = FileHandler()
+        data = fh.read_from_file(path + 'systems', aggregate=True)
+        data.sort(key=operator.itemgetter(2))
+        results = [['key', 'n', 'm', 'time', 'time_gauss', 'time_diff']]
+        for datum in data:
+            print datum[0]
+
+            # prepare input
+            input = self.prepare_cryptominisat_system(datum)
+            fh.write_to_file_simple("./../assets/sat_run/temp_storage", input)
+
+            # run with gauss
+            cmd = "cryptominisat5 --verb=0 ./../assets/sat_run/temp_storage"
+            time_with, out_a = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
+
+            # # run without gauss
+            # cmd = "cryptominisat5 --autodisablegauss=1 --verb=0 ./../assets/sat_run/temp_storage"
+            # time_without, out_b = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
+
+
+            # print "Discrepency ", datum[1], " ", datum[2], round(time_with - time_without, 4)
+            # discrepancy = round(time_with - time_without, 4)
+            # discrepancies.append([datum[0], datum[1], datum[2], discrepancy])
+
+
+            print time_with
+            results.append([datum[0], datum[1], datum[2], time_with, time_with, time_with])
+        fh.update_file(path + "systems_run", results)
+        return results
+
+    def prepare_cryptominisat_system(self, datum):
+        # init
+        n = datum[1]
+        m = str(int(datum[2]) + 1)
+        input = [
+            'p cnf {0} {1}'.format(n, m)
+        ]
+
+        # Grab clauses
+        for clause in datum[3]:
+            input.append("x{0} {1} -{2} 0".format(clause[0], clause[1], clause[2]))
+
+        # Ensures uniquely satisfiable
+        input.append(" ".join([str(i) for i in range(1, int(n) + 1)]) + " 0")
+
+        # Return
+        return input
+
+    def find_pool(self, clauses):
+        variables = []
+        for clause in clauses:
+            for variable in clause:
+                if variable not in variables:
+                    variables.append(variable)
+        return variables

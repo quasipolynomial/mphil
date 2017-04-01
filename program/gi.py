@@ -56,8 +56,9 @@ class Gi(object):
 
         # Gather results
         try:
-            stdout, stderr = process.communicate(input='At -a V=0 -m <"' + path + '" x q')
-            time = re.search('(time=?) = \d+.\d+\d+', stdout).group(0)[7:] if stdout else -1
+            time, (stdout, stderr) = ph.run_function_timed(process.communicate, ('At -a V=0 -m <"' + path + '" x q',),
+                                                           return_args=True)
+            d_time = re.search('(time=?) = \d+.\d+\d+', stdout).group(0)[7:] if stdout else -1
         except TimeoutError:
             print "Timed out: Took too long to validate"
             time = -1
@@ -69,7 +70,8 @@ class Gi(object):
         return {
             "name": graph_instance,
             "nodes": nodes,
-            "time": time
+            "time": time,
+            "d_time": d_time
         }
 
     def load_graphs(self):

@@ -6,6 +6,14 @@ from processhandler import ProcessHandler
 
 
 class FileHandler(object):
+    def write_to_file_simple(self, path, data):
+        with open(path, 'w') as outfile:
+            for datum in data:
+                out = datum
+                if datum != data[-1]:
+                    out = out+"\n"
+                outfile.write(out)
+
     def write_to_file(self, path, data):
         with open(path, 'w') as outfile:
             json.dump(data, outfile)
@@ -22,8 +30,8 @@ class FileHandler(object):
             filename = path.rsplit('/', 1)[-1]
             count = ph.run_command("cd {0} && ls -d *{1}* | wc -l ".format(directory, filename))[0]
             for i in range(1, int(count)):
-                path = "{0}_{1}".format(path, str(i))
-                with open(path, 'r') as outfile:
+                temp_path = "{0}_{1}".format(path, str(i))
+                with open(temp_path, 'r') as outfile:
                     data_b = json.load(outfile)
                 data = self.merge_data(data, data_b)
 
