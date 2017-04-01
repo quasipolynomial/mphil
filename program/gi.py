@@ -58,8 +58,9 @@ class Gi(object):
         try:
             time, (stdout, stderr) = ph.run_function_timed(process.communicate, ('At -a V=0 -m <"' + path + '" x q',),
                                                            return_args=True)
-            if stdout:
-                d_time = re.search('(time=?) = \d+.\d+\d+', stdout).group(0)[7:]
+            split = re.search('(time=?) = \d+.\d+\d+', stdout)
+            if split:
+                d_time = split.group(0)[7:]
             else:
                 d_time = -1
 
