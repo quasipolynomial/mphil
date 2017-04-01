@@ -58,7 +58,12 @@ class Gi(object):
         try:
             time, (stdout, stderr) = ph.run_function_timed(process.communicate, ('At -a V=0 -m <"' + path + '" x q',),
                                                            return_args=True)
-            d_time = re.search('(time=?) = \d+.\d+\d+', stdout).group(0)[7:] if stdout else -1
+            if stdout:
+                print  re.search('(time=?) = \d+.\d+\d+', stdout)
+                d_time = re.search('(time=?) = \d+.\d+\d+', stdout).group(0)[7:]
+            else:
+                d_time = -1
+
         except TimeoutError:
             print "Timed out: Took too long to validate"
             time = -1

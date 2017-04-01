@@ -77,11 +77,10 @@ class Main(object):
 
 if __name__ == "__main__":
     main = Main()
-    # main.generate_graphs()
+    main.generate_graphs()
     # main.generate_n_m()
     # main.time_n_m()
-    main.time_n_m_new(outstanding=True)
-
+    # main.time_n_m_new(outstanding=True)
     # sat = Sat()
     # fh = FileHandler()
     # ph = ProcessHandler()

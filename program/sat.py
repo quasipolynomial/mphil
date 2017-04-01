@@ -13,10 +13,10 @@ import timeit
 #   auto, k locally, uniquely sat,
 #   Run on two different builds
 #   Save each system to file
+# Todo add timeouts to graphs
 # Todo Rerun and find times
 # DONE Todo random graphs
 # DONE Todo subsecond times
-# DONE Todo timeouts
 
 class Sat(object):
     def generate_systems(self, **kwargs):
