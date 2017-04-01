@@ -8,16 +8,15 @@ import timeit
 
 
 # Todo gauss elim
-# Todo timeouts
 # Todo extending graphs (random ones)
 # Todo make birpartite graph check if has automorphisms
 #   auto, k locally, uniquely sat,
 #   Run on two different builds
 #   Save each system to file
 # Todo Rerun and find times
-#
 # DONE Todo random graphs
 # DONE Todo subsecond times
+# DONE Todo timeouts
 
 class Sat(object):
     def generate_systems(self, **kwargs):
@@ -281,7 +280,7 @@ class Sat(object):
             print datum[0]
 
             # prepare input
-            input = self.prepare_cryptominisat_system(datum)
+            input = self.prepare_cryptominisat_system(datum[1], datum[2], datum[3])
             fh.write_to_file_simple("./../assets/sat_run/temp_storage", input)
 
             # run with gauss
@@ -303,17 +302,15 @@ class Sat(object):
         fh.update_file(path + "systems_run", results)
         return results
 
-    def prepare_cryptominisat_system(self, datum):
+    def prepare_cryptominisat_system(self, n, m, system):
         # init
-        n = datum[1]
-        m = str(int(datum[2]) + 1)
         input = [
             'p cnf {0} {1}'.format(n, m)
         ]
 
         # Grab clauses
-        for clause in datum[3]:
-            input.append("x{0} {1} -{2} 0".format(clause[0], clause[1], clause[2]))
+        for clause in system:
+            input.append("x{0} {1} -{2} 0".format(int(clause[0]), int(clause[1]), int(clause[2])))
 
         # Ensures uniquely satisfiable
         input.append(" ".join([str(i) for i in range(1, int(n) + 1)]) + " 0")
@@ -328,3 +325,13 @@ class Sat(object):
                 if variable not in variables:
                     variables.append(variable)
         return variables
+
+    def save_system(self, n, m, system):
+        fh = FileHandler()
+        path = "./../assets/systems/{0}_{1}".format(n, m)
+        fh.write_to_file(path, system)
+
+    def save_systems(self, systems):
+        for system in systems:
+            # n, m, system
+            self.save_system(system[1], system[2], system[3])

@@ -47,18 +47,7 @@ class PlotHandler(object):
             plt.show()
         plt.clf()
 
-    def plot_graph_3d(self, data):
-        x = []
-        y = []
-        z = []
-        for r in data:
-            if r[0] == 'key':
-                continue
-            elif r[4] > 0:
-                x.append(r[1])
-                y.append(r[2])
-                z.append(r[4])
-                print r[0], r[4]
+    def plot_graph_3d(self, x, y, z):
 
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
@@ -91,7 +80,7 @@ class PlotHandler(object):
                 x_axis.append(result['nodes'])
                 y_axis.append(result['time'])
                 prev = result
-                i = i+1
+                i = i + 1
             kwargs["timed_out"] = timed_out
             self.plot_graph_2d(graph, x_axis, y_axis, **kwargs)
 
@@ -115,7 +104,7 @@ class PlotHandler(object):
                            scatter=True,
                            x_label="N Values",
                            y_label="M Values")
-        self.plot_graph_3d(data)
+        self.plot_graph_3d(x, y, z)
 
         # self.plot_graph_2d_heatmap("title", x, y, z)
 
@@ -124,9 +113,9 @@ class PlotHandler(object):
         y = []
         z = []
         for r in data:
-            x.append(r[1])
-            y.append(r[2])
-            z.append(r[3])
+            x.append(int(r[1]))
+            y.append(int(r[2]))
+            z.append(int(r[3]))
 
         self.plot_graph_2d("Sat run 0-n-10000_0-m-10000_step-100",
                            x,
@@ -135,3 +124,4 @@ class PlotHandler(object):
                            scatter=True,
                            x_label="N Values",
                            y_label="M Values")
+        self.plot_graph_3d(x, y, z)

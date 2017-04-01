@@ -11,7 +11,7 @@ class FileHandler(object):
             for datum in data:
                 out = datum
                 if datum != data[-1]:
-                    out = out+"\n"
+                    out = out + "\n"
                 outfile.write(out)
 
     def write_to_file(self, path, data):
@@ -19,6 +19,9 @@ class FileHandler(object):
             json.dump(data, outfile)
 
     def read_from_file(self, path, **kwargs):
+        if not os.path.isfile(path):
+            return False
+
         # First read
         with open(path, 'r') as outfile:
             data = json.load(outfile)
@@ -81,4 +84,3 @@ class FileHandler(object):
             if found == False:
                 data_b.append(datum1)
         return data_b
-
