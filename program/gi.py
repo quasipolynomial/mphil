@@ -114,6 +114,7 @@ class Gi(object):
         nodes = [6000, 7000, 8000, 9000, 10000]
         fh = FileHandler()
         for i in nodes:
+            print "Generating {0}".format(i)
 
             # Build matrix
             output = ["$=1 n={0} g".format(i)]
