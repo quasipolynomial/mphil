@@ -62,6 +62,7 @@ class Gi(object):
             if split:
                 d_time = split.group(0)[7:]
             else:
+                time = -1
                 d_time = -1
 
         except TimeoutError:

@@ -37,7 +37,8 @@ class Main(object):
     def generate_graphs(self):
         ph = PlotHandler()
         gi = Gi()
-        results = gi.generate_graphs(outstanding=True, timeout=False, save=True)
+        # results = gi.generate_graphs(outstanding=True, timeout=False, save=True)
+        results = gi.load_results()
         ph.plot_gi_results(results, save=True)
         print results
 
@@ -66,24 +67,27 @@ class Main(object):
             input = sat.prepare_cryptominisat_system(n, m, system)
             fh.write_to_file_simple("./../assets/systems_run/temp_storage", input)
 
+            # run
+            cmd = "./../assets/sat/cryptominisat/build/cryptominisat5 --verb=0 ./../assets/systems_run/temp_storage"
+            time_a, out_a = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
+
             # run with gauss
-            cmd = "cryptominisat5 --verb=0 ./../assets/systems_run/temp_storage"
-            time_with, out_a = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
+            cmd = "./../assets/sat/cryptominisat/build_gauss/cryptominisat5 --verb=0 ./../assets/systems_run/temp_storage"
+            time_b, out_b = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
 
             # Save
-            results.append([key, n, m, time_with])
+            results.append([key, n, m, time_a, time_b, time_a - time_b])
             fh.update_file("./../assets/systems_run/run", results)
 
 
 if __name__ == "__main__":
     main = Main()
-    main.generate_graphs()
+    # main.generate_graphs()
     # main.generate_n_m()
     # main.time_n_m()
-    # main.time_n_m_new(outstanding=True)
+    main.time_n_m_new(outstanding=True)
     # sat = Sat()
     # fh = FileHandler()
-    # ph = ProcessHandler()
     # pl = PlotHandler()
     # results = fh.read_from_file("./../assets/systems_run/run")
     # pl.plot_gauss_results(results)
