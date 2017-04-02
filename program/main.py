@@ -82,12 +82,15 @@ class Main(object):
 
 if __name__ == "__main__":
     main = Main()
+    gi = Gi()
+    gi.generate_random_graphs()
+
     # main.generate_graphs()
     # main.generate_n_m()
     # main.time_n_m()
     # main.time_n_m_new(outstanding=False)
-    sat = Sat()
-    fh = FileHandler()
-    pl = PlotHandler()
-    results = fh.read_from_file("./../assets/systems_run/run")
-    pl.plot_gauss_results(results)
+    # sat = Sat()
+    # fh = FileHandler()
+    # pl = PlotHandler()
+    # results = fh.read_from_file("./../assets/systems_run/run")
+    # pl.plot_gauss_results(results)

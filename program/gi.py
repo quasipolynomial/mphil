@@ -110,7 +110,7 @@ class Gi(object):
                 results[graph] = fh.read_from_file("./../assets/graphs_run/" + graph + ".txt")
         return results
 
-    def generate_random_graph(self):
+    def generate_random_graphs(self):
         nodes = [6000, 7000, 8000, 9000, 10000]
         fh = FileHandler()
         for i in nodes:
@@ -139,5 +139,4 @@ class Gi(object):
             fh.write_to_file_simple("./../assets/graphs/ran2/custom"+str(i)+".dre", output)
 
 
-x = Gi()
-x.generate_random_graph()
+
