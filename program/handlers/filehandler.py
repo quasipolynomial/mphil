@@ -6,6 +6,11 @@ from processhandler import ProcessHandler
 
 
 class FileHandler(object):
+    def write_to_file_simple_incrementally(self, path, data):
+        for datum in data:
+            with open(path, 'w') as outfile:
+                outfile.write(datum+"\n")
+
     def write_to_file_simple(self, path, data):
         with open(path, 'w') as outfile:
             for datum in data:

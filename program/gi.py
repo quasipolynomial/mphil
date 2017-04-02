@@ -136,7 +136,7 @@ class Gi(object):
             output.append("$$")
 
             # Output matrix to graph
-            fh.write_to_file_simple("./../assets/graphs/ran2/custom"+str(i)+".dre", output)
+            fh.write_to_file_simple_incrementally("./../assets/graphs/ran2/custom"+str(i)+".dre", output)
 
 
 
