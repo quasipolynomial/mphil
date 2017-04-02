@@ -76,7 +76,7 @@ class Main(object):
             time_b, out_b = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
 
             # Save
-            results.append([key, n, m, time_a, time_b, time_a - time_b])
+            results.append([key, n, m, time_a, time_b, time_b - time_a])
             fh.update_file("./../assets/systems_run/run", results)
 
 
@@ -85,9 +85,9 @@ if __name__ == "__main__":
     # main.generate_graphs()
     # main.generate_n_m()
     # main.time_n_m()
-    main.time_n_m_new(outstanding=True)
-    # sat = Sat()
-    # fh = FileHandler()
-    # pl = PlotHandler()
-    # results = fh.read_from_file("./../assets/systems_run/run")
-    # pl.plot_gauss_results(results)
+    # main.time_n_m_new(outstanding=False)
+    sat = Sat()
+    fh = FileHandler()
+    pl = PlotHandler()
+    results = fh.read_from_file("./../assets/systems_run/run")
+    pl.plot_gauss_results(results)

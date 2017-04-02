@@ -159,7 +159,7 @@ class PlotHandler(object):
         for r in data:
             x.append(int(r[1]))
             y.append(int(r[2]))
-            z.append(float(r[3]))
+            z.append(float(r[4]))
 
         title = 'Sat run 0-n-10000_0-m-10000_step-100'
         self.plot_heatmap_2d(title,

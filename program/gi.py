@@ -3,6 +3,8 @@ import signal
 from handlers.exceptionhandler import signal_handler, TimeoutError
 from handlers.filehandler import FileHandler
 from handlers.processhandler import ProcessHandler
+import networkx as nx
+import numpy as np
 
 
 class Gi(object):
@@ -107,3 +109,35 @@ class Gi(object):
             if graph + ".txt" in run:
                 results[graph] = fh.read_from_file("./../assets/graphs_run/" + graph + ".txt")
         return results
+
+    def generate_random_graph(self):
+        nodes = [6000, 7000, 8000, 9000, 10000]
+        fh = FileHandler()
+        for i in nodes:
+
+            # Build matrix
+            output = ["$=1 n={0} g".format(i)]
+            g = nx.gnp_random_graph(i, 0.5)
+            matrix = np.triu(nx.to_numpy_matrix(g))
+            r = 1
+            for row in matrix:
+                c = 1
+                new_row = []
+                for col in row:
+                    if col == 1:
+                        new_row.append(str(c))
+                    c = c + 1
+                if new_row:
+                    line = " ".join(new_row)
+                    line = str(r) + ": " + line
+                    output.append(line)
+                r = r + 1
+            output[-1] = output[-1]+"."
+            output.append("$$")
+
+            # Output matrix to graph
+            fh.write_to_file_simple("./../assets/graphs/ran2/custom"+str(i)+".dre", output)
+
+
+x = Gi()
+x.generate_random_graph()

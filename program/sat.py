@@ -7,16 +7,17 @@ from handlers.plothandler import PlotHandler
 import timeit
 
 
-# Todo gauss elim
+
 # Todo extending graphs (random ones)
 # Todo make birpartite graph check if has automorphisms
 #   auto, k locally, uniquely sat,
 #   Run on two different builds
 #   Save each system to file
-# Todo add timeouts to graphs
-# Todo Rerun and find times
+# DONE Todo add timeouts to graphs
+# DONE Todo Rerun and find times
 # DONE Todo random graphs
 # DONE Todo subsecond times
+# DONE Todo gauss elim
 
 class Sat(object):
     def generate_systems(self, **kwargs):
