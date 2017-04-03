@@ -83,8 +83,8 @@ class Main(object):
 if __name__ == "__main__":
     main = Main()
     gi = Gi()
-    gi.generate_random_graphs()
-
+    # gi.generate_random_graphs()
+    gi.read_sparse_6_graphs()
     # main.generate_graphs()
     # main.generate_n_m()
     # main.time_n_m()

@@ -113,31 +113,45 @@ class Gi(object):
     def generate_random_graphs(self):
         nodes = [6000, 7000, 8000, 9000, 10000]
         fh = FileHandler()
-        for i in nodes:
-            print "Generating {0}".format(i)
+        for n in nodes:
+            print "Generating {0}".format(n)
 
-            # Build matrix
-            output = ["$=1 n={0} g".format(i)]
-            g = nx.gnp_random_graph(i, 0.5)
-            matrix = np.triu(nx.to_numpy_matrix(g))
-            r = 1
-            for row in matrix:
-                c = 1
-                new_row = []
-                for col in row:
-                    if col == 1:
-                        new_row.append(str(c))
-                    c = c + 1
-                if new_row:
-                    line = " ".join(new_row)
-                    line = str(r) + ": " + line
-                    output.append(line)
-                r = r + 1
-            output[-1] = output[-1]+"."
-            output.append("$$")
+            g = nx.gnp_random_graph(n, 0.5)
+            output = self.graph_to_dre(g, n)
 
             # Output matrix to graph
-            fh.write_to_file_simple("./../assets/graphs/ran2/custom"+str(i)+".dre", output)
+            fh.write_to_file_simple("./../assets/graphs/ran2/custom" + str(n) + ".dre", output)
 
+    def graph_to_dre(self, g, n):
+        # Build matrix
+        path = "./../assets/graphs_custom/ran2_custom" + str(n) + ".dre"
+        output = ["$=1 n={0} g".format(n)]
+        fh = FileHandler()
 
+        matrix = np.triu(nx.to_numpy_matrix(g))
+        r = 1
+        for row in matrix:
+            c = 1
+            new_row = []
+            for col in row:
+                if col == 1:
+                    new_row.append(str(c))
+                c = c + 1
+            if new_row:
+                line = " ".join(new_row)
+                line = str(r) + ": " + line
+                output.append(line)
+                fh.append_to_file(path, line)
+            r = r + 1
+        output[-1] = output[-1] + "."
+        output.append("$$")
+        return output
+
+    def read_sparse_6_graphs(self):
+        fh = FileHandler()
+        n = 6000
+        path = "./../assets/graphs_custom/ran2_custom_{0}.g6".format(n)
+        g = nx.read_sparse6(path)
+        output = self.graph_to_dre(g, n)
+        # fh.write_to_file_simple("./../assets/graphs_custom/ran2_custom" + str(n) + ".dre", output)
 

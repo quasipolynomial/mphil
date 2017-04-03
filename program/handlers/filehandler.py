@@ -6,6 +6,10 @@ from processhandler import ProcessHandler
 
 
 class FileHandler(object):
+    def append_to_file(self, path, line):
+        ph = ProcessHandler()
+        ph.run_command("echo '{}'".format(line) + " >> " + path)
+
     def write_to_file_simple(self, path, data):
         with open(path, 'w') as outfile:
             for datum in data:
