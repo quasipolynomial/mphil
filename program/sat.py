@@ -7,12 +7,13 @@ from handlers.plothandler import PlotHandler
 import timeit
 
 
-
-# Todo extending graphs (random ones)
+# TODO Run graphs
+# TODO Run k check
 # Todo make birpartite graph check if has automorphisms
 #   auto, k locally, uniquely sat,
 #   Run on two different builds
 #   Save each system to file
+# DONE Todo extending graphs (random ones)
 # DONE Todo add timeouts to graphs
 # DONE Todo Rerun and find times
 # DONE Todo random graphs
