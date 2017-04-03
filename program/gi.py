@@ -113,14 +113,16 @@ class Gi(object):
     def generate_random_graphs(self):
         nodes = [6000, 7000, 8000, 9000, 10000]
         fh = FileHandler()
+
         for n in nodes:
             print "Generating {0}".format(n)
-
+            path = "./../assets/graphs/ran2/custom" + str(n) + ".dre"
             g = nx.gnp_random_graph(n, 0.5)
             output = self.graph_to_dre(g, n)
-
+            for line in output:
+                fh.append_to_file(path, line)
             # Output matrix to graph
-            fh.write_to_file_simple("./../assets/graphs/ran2/custom" + str(n) + ".dre", output)
+            # fh.write_to_file_simple("./../assets/graphs/ran2/custom" + str(n) + ".dre", output)
 
     def graph_to_dre(self, g, n):
         # Build matrix
@@ -141,7 +143,6 @@ class Gi(object):
                 line = " ".join(new_row)
                 line = str(r) + ": " + line
                 output.append(line)
-                fh.append_to_file(path, line)
             r = r + 1
         output[-1] = output[-1] + "."
         output.append("$$")
