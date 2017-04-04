@@ -8,7 +8,8 @@ import timeit
 
 
 # TODO Run graphs
-# TODO Run k check
+# TODO Run sat
+# TODO Make graphs from output
 # Todo make birpartite graph check if has automorphisms
 #   auto, k locally, uniquely sat,
 #   Run on two different builds
@@ -272,37 +273,42 @@ class Sat(object):
     def find_systems(self, clauses, n, m):
         return self.find_system(clauses, [], n, m, 0)
 
-    def compare_gauss(self, path):
-        ph = ProcessHandler()
+    def run_solver(self, **kwargs):
         fh = FileHandler()
-        data = fh.read_from_file(path + 'systems', aggregate=True)
-        data.sort(key=operator.itemgetter(2))
-        results = [['key', 'n', 'm', 'time', 'time_gauss', 'time_diff']]
-        for datum in data:
-            print datum[0]
+        ph = ProcessHandler()
+        results = []
+        skip = kwargs.get("outstanding", False)
+        completed = []
+        if fh.read_from_file("./../assets/systems_run/run"):
+            for result in fh.read_from_file("./../assets/systems_run/run"):
+                completed.append(result[0])
 
-            # prepare input
-            input = self.prepare_cryptominisat_system(datum[1], datum[2], datum[3])
-            fh.write_to_file_simple("./../assets/sat_run/temp_storage", input)
+        for filename in ph.run_command('ls -v ./../assets/systems/'):
+            # prep
+            path = './../assets/systems/' + filename
+            system = fh.read_from_file(path)
+            split = filename.split("_")
+            n = split[0]
+            m = split[1]
+            key = "{0}:{1}".format(n, m)
+            if skip and key in completed:
+                continue
+            print key
+            input = self.prepare_cryptominisat_system(n, m, system)
+            fh.write_to_file_simple("./../assets/systems_run/temp_storage", input)
+
+            # run
+            cmd = "./../assets/sat/cryptominisat/build/cryptominisat5 --verb=0 ./../assets/systems_run/temp_storage"
+            time_a, out_a = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
 
             # run with gauss
-            cmd = "cryptominisat5 --verb=0 ./../assets/sat_run/temp_storage"
-            time_with, out_a = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
+            cmd = "./../assets/sat/cryptominisat/build_gauss/cryptominisat5 --verb=0 ./../assets/systems_run/temp_storage"
+            time_b, out_b = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
 
-            # # run without gauss
-            # cmd = "cryptominisat5 --autodisablegauss=1 --verb=0 ./../assets/sat_run/temp_storage"
-            # time_without, out_b = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
+            # Save
+            results.append([key, n, m, time_a, time_b, time_b - time_a])
+            fh.update_file("./../assets/systems_run/run", results)
 
-
-            # print "Discrepency ", datum[1], " ", datum[2], round(time_with - time_without, 4)
-            # discrepancy = round(time_with - time_without, 4)
-            # discrepancies.append([datum[0], datum[1], datum[2], discrepancy])
-
-
-            print time_with
-            results.append([datum[0], datum[1], datum[2], time_with, time_with, time_with])
-        fh.update_file(path + "systems_run", results)
-        return results
 
     def prepare_cryptominisat_system(self, n, m, system):
         # init

@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 
 
 class PlotHandler(object):
-    def plot_plot_2d(self, title, x, y, z, **kwargs):
+    def plot_plot_2d(self, title, x, y, **kwargs):
         plt.title(title)
         plt.xlabel(kwargs.get("x_label", "Set X"))
         plt.ylabel(kwargs.get("y_label", "Set Y"))

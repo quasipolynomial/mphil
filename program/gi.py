@@ -5,38 +5,59 @@ from handlers.filehandler import FileHandler
 from handlers.processhandler import ProcessHandler
 import networkx as nx
 import numpy as np
+import math
 
 
 class Gi(object):
-    def generate_graphs(self, **kwargs):
+    def run_all_graphs(self, **kwargs):
         """
-        Run all/some graphs on dreadnaut
+        Run all graphs on dreadnaut
         :param kwargs: 
         :return: 
         """
-        # Init
-        fh = FileHandler()
-        ph = ProcessHandler()
-        results = {}
         graphs = self.load_graphs()
+        results = self.run_graphs(graphs, **kwargs)
+        return results
+
+    def run_graphs(self, graphs, **kwargs):
+        """
+        Run a set of graphs
+        :param graphs: 
+        :param kwargs: 
+        :return: 
+        """
+        ph = ProcessHandler()
         run = ph.run_command("ls -v ./../assets/graphs_run/")
+        results = {}
 
         for graph in graphs:
             # Skip existing graphs
             if kwargs.get("outstanding", False) and graph + ".txt" in run:
                 continue
+            results[graph] = self.run_graph(graphs[graph], graph, **kwargs)
 
-            # Gather results
-            graph_results = []
-            for graph_instance in graphs[graph]:
-                print graph_instance
-                graph_results.append(self.run_graph_instance(graph, graph_instance, **kwargs))
-            results[graph] = graph_results
-
-            # Save
-            if kwargs.get("save", False):
-                fh.write_to_file("./../assets/graphs_run/" + graph + ".txt", graph_results)
         return results
+
+    def run_graph(self, graphs, graph, **kwargs):
+        """
+        Run instances in a graph
+        :param graph: 
+        :param kwargs: 
+        :return: 
+        """
+        fh = FileHandler()
+
+        # Gather results
+        graph_results = []
+        for graph_instance in graphs:
+            print graph_instance
+            graph_results.append(self.run_graph_instance(graph, graph_instance, **kwargs))
+
+        # Save
+        if kwargs.get("save", False):
+            fh.write_to_file("./../assets/graphs_run/" + graph + ".txt", graph_results)
+
+        return graph_results
 
     def run_graph_instance(self, graph, graph_instance, **kwargs):
         """
@@ -58,7 +79,8 @@ class Gi(object):
 
         # Gather results
         try:
-            time, (stdout, stderr) = ph.run_function_timed(process.communicate, ('At -a V=0 -m <"' + path + '" x q',),
+            time, (stdout, stderr) = ph.run_function_timed(process.communicate,
+                                                           ('At -a V=0 -m <"' + path + '" x q',),
                                                            return_args=True)
             split = re.search('(time=?) = \d+.\d+\d+', stdout)
             if split:
@@ -111,48 +133,21 @@ class Gi(object):
         return results
 
     def generate_random_graphs(self):
-        nodes = [6000, 7000, 8000, 9000, 10000]
-        fh = FileHandler()
+        ph = ProcessHandler()
+        instances = [5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 100, 200, 300,
+                     400, 500, 600, 700, 800, 900, 1000, 2000, 3000, 4000, 5000,
+                     10000, 20000, 30000]
 
-        for n in nodes:
-            print "Generating {0}".format(n)
-            path = "./../assets/graphs/ran2/custom" + str(n) + ".dre"
-            g = nx.gnp_random_graph(n, 0.5)
-            output = self.graph_to_dre(g, n)
-            for line in output:
-                fh.append_to_file(path, line)
-            # Output matrix to graph
-            # fh.write_to_file_simple("./../assets/graphs/ran2/custom" + str(n) + ".dre", output)
+        probabilities = ["1/2", "1/10", "sqrt"]
+        names = ["ran2_custom", "ran10_custom", "ransq_custom"]
 
-    def graph_to_dre(self, g, n):
-        # Build matrix
-        path = "./../assets/graphs_custom/ran2_custom" + str(n) + ".dre"
-        output = ["$=1 n={0} g".format(n)]
-        fh = FileHandler()
-
-        matrix = np.triu(nx.to_numpy_matrix(g))
-        r = 1
-        for row in matrix:
-            c = 1
-            new_row = []
-            for col in row:
-                if col == 1:
-                    new_row.append(str(c))
-                c = c + 1
-            if new_row:
-                line = " ".join(new_row)
-                line = str(r) + ": " + line
-                output.append(line)
-            r = r + 1
-        output[-1] = output[-1] + "."
-        output.append("$$")
-        return output
-
-    def read_sparse_6_graphs(self):
-        fh = FileHandler()
-        n = 6000
-        path = "./../assets/graphs_custom/ran2_custom_{0}.g6".format(n)
-        g = nx.read_sparse6(path)
-        output = self.graph_to_dre(g, n)
-        # fh.write_to_file_simple("./../assets/graphs_custom/ran2_custom" + str(n) + ".dre", output)
-
+        for p, n in zip(probabilities, names):
+            print p
+            for i in instances:
+                dest = "./../assets/graphs_custom/{0}/{1}".format(n, i)
+                print dest
+                p = "1/" + str(int(math.ceil(math.sqrt(float(i)))))
+                print "./../assets/nauty26r7/genrang -P{0} {1} 1 {2}.g6".format(p, i, dest)
+                ph.run_command("./../assets/nauty26r7/genrang -P{0} {1} 1 {2}.g6".format(p, i, dest))
+                ph.run_command("./../assets/nauty26r7/showg -d {0}.g6 {1}.dre".format(dest, dest))
+                # ph.run_command("rm ./../assets/{0}.g6".format(dest))
