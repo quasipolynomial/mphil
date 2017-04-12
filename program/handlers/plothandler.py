@@ -74,6 +74,7 @@ class PlotHandler(object):
         fig = plt.figure()
         plt.title(title)
         ax = fig.add_subplot(111, projection='3d')
+        ax.set_title(title)
         ax.scatter(x, y, z, c='r', marker='o')
         ax.set_xlabel('N Values')
         ax.set_ylabel('M Values')

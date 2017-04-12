@@ -5,21 +5,10 @@ from handlers.processhandler import ProcessHandler
 import operator
 from handlers.plothandler import PlotHandler
 import timeit
+import numpy as np
+import networkx as nx
+import matplotlib.pyplot as plt
 
-
-# TODO Run graphs
-# TODO Run sat
-# TODO Make graphs from output
-# Todo make birpartite graph check if has automorphisms
-#   auto, k locally, uniquely sat,
-#   Run on two different builds
-#   Save each system to file
-# DONE Todo extending graphs (random ones)
-# DONE Todo add timeouts to graphs
-# DONE Todo Rerun and find times
-# DONE Todo random graphs
-# DONE Todo subsecond times
-# DONE Todo gauss elim
 
 class Sat(object):
     def generate_systems(self, **kwargs):
@@ -41,7 +30,8 @@ class Sat(object):
         save_results_location = save_dir + "/results"
         save_systems = kwargs.get("save_systems", False)
         save_results = kwargs.get("save_results", False)
-        bound = kwargs.get("bound", True)
+        bound = kwargs.get("bound", False)
+        limit = kwargs.get("limit", False)
 
         # Prep folder
         fh.makedir(save_dir)
@@ -50,23 +40,29 @@ class Sat(object):
             m = min_m
             n += step
             tries = 0
+            found = 0
             smallest_m_found = False
             result = []
             system = []
 
             while m < max_m:
+                # Handle iterations
                 m += step
                 if m < n:
                     m = n
-
-                if 4 < m / n:
+                if 4 < m / n or found == limit:
                     break
 
                 key = `n` + ':' + `m`
                 validation_start = timeit.default_timer()
-                generate_time, eq = ph.run_function_timed(self.generate_rand_system, (n, m), return_args=True)
+                generate_time, eq = ph.run_function_timed(self.generate_rand_unique_system, (n, m), return_args=True)
 
+                # Found unique system
                 if eq:
+                    # Update params
+                    tries = 0
+                    found += 1
+
                     # Update the lower bound
                     if bound and not smallest_m_found:
                         min_m = m - step
@@ -75,13 +71,16 @@ class Sat(object):
                     # Record times
                     print "Found: ", n, m
                     validation_time = timeit.default_timer() - validation_start
-                    tries = 0
                     results.append([key, n, m, tries, validation_time, generate_time])
                     result.append([key, n, m, tries, validation_time, generate_time])
+
+                    # Save data
                     if save_systems:
                         systems.append([key, n, m, eq])
                         system.append([key, n, m, eq])
+                        self.save_system(n, m, eq)
 
+                # Failed to find and tried too many times
                 elif max_tries == tries:
                     # print "Skipping: ", n, m
                     tries = 0
@@ -89,9 +88,10 @@ class Sat(object):
                     result.append([key, n, m, tries, -1, -1])
                     continue
 
+                # Failed to find, try again
                 else:
                     # print 'Couldnt find for ' + `m` + ' Misses ' + `tries`
-                    print n, "-", m, "-missing"
+                    # print n, "-", m, "- missing"
                     tries += 1
                     m -= step
 
@@ -297,18 +297,17 @@ class Sat(object):
             input = self.prepare_cryptominisat_system(n, m, system)
             fh.write_to_file_simple("./../assets/systems_run/temp_storage", input)
 
-            # run
+            # run gauss off
             cmd = "./../assets/sat/cryptominisat/build/cryptominisat5 --verb=0 ./../assets/systems_run/temp_storage"
             time_a, out_a = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
 
-            # run with gauss
+            # run gauss on
             cmd = "./../assets/sat/cryptominisat/build_gauss/cryptominisat5 --verb=0 ./../assets/systems_run/temp_storage"
             time_b, out_b = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
 
             # Save
             results.append([key, n, m, time_a, time_b, time_b - time_a])
             fh.update_file("./../assets/systems_run/run", results)
-
 
     def prepare_cryptominisat_system(self, n, m, system):
         # init
@@ -343,3 +342,47 @@ class Sat(object):
         for system in systems:
             # n, m, system
             self.save_system(system[1], system[2], system[3])
+
+    def load_results(self):
+        fh = FileHandler()
+        results = fh.read_from_file("./../assets/systems_run/run")
+        return results
+
+    def convert_system_to_graph(self, system):
+        fh = FileHandler()
+        system = fh.read_from_file("./../assets/systems/100_200")
+        n = 100
+        m = 200
+        A = np.zeros((n + m, n + m))
+        c = 0
+        for clause in system:
+            A[clause[0] - 1][n + c] = 1
+            A[clause[1] - 1][n + c] = 1
+            A[clause[2] - 1][n + c] = 1
+            # Transpose
+            A[n + c][clause[0] - 1] = 1
+            A[n + c][clause[1] - 1] = 1
+            A[n + c][clause[2] - 1] = 1
+            # Increment
+            c = c + 1
+
+        # Graph Pre
+        L = range(0, n)
+        R = range(n, n + m)
+        # Labels
+        labels = range(1, n + 1) + ["C" + str(i) for i in range(1, m + 1)]
+        labels_dict = {}
+        for i in range(0, n + m):
+            labels_dict[i] = labels[i]
+        # Graph
+        G = nx.from_numpy_matrix(A)
+        pos = nx.spring_layout(G)
+        pos = dict()
+        pos.update((n, (i, 1)) for i, n in enumerate(R))  # put nodes from X at x=1
+        pos.update((n, (i, 2)) for i, n in enumerate(L))  # put nodes from Y at x=2
+        nx.draw(G, pos)
+        nx.draw_networkx_labels(G, pos, labels_dict)
+        plt.draw()
+        plt.show()
+
+        exit()
