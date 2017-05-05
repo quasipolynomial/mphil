@@ -1,3 +1,9 @@
+#! /usr/bin/python2.7
+
+"""
+Logic for producing uniquely satisfiable instances using Cryptominisat package
+"""
+
 import random
 from pycryptosat import Solver
 from handlers.filehandler import FileHandler
@@ -12,6 +18,12 @@ import matplotlib.pyplot as plt
 
 class Sat(object):
     def generate_systems(self, **kwargs):
+        """
+        Generate instances by searching through combinations of n and m
+        Save these results as files
+        :param kwargs: 
+        :return: Results of time taken to search
+        """
         # init
         fh = FileHandler()
         ph = ProcessHandler()
@@ -106,9 +118,13 @@ class Sat(object):
         return results
 
     def generate_rand_system(self, n, m):
-        """Generates a random homogenous system
         """
-
+        Generates a random homogenous system
+        Try n times to pull a unique random set of three variables from the pool.
+        :param n: 
+        :param m: 
+        :return: A 2d array of systems
+        """
         pool = range(1, n + 1)
         system = []
         tries = 3
@@ -131,8 +147,12 @@ class Sat(object):
     def generate_rand_unique_system(self, n, m):
         """
         Generates a random homogenous system that is uniquely satisfiable
+        First generates a system and then checks if uniquely satisfiable
+        Try n times to generate system
+        :param n: 
+        :param m: 
+        :return: A 2d array of systems
         """
-
         tries = 3
 
         while True:
@@ -151,9 +171,9 @@ class Sat(object):
     def generate_systems_fix_n(self):
         """
         Generate a system forcing n to stay static and allow m to vary
-        Give up after t tries
+        Give up after n tries
+        :return: Null
         """
-
         sat = Sat()
         n = 50
         max_m = 1000
@@ -176,7 +196,8 @@ class Sat(object):
     def generate_systems_fix_n_force(self):
         """
         Generate a system forcing n to stay static and allowing m to vary
-        Don't give up
+        Don't give up, that is, keep trying until a system is found
+        :return: Null
         """
         sat = Sat()
         n = 50
@@ -198,8 +219,10 @@ class Sat(object):
     def is_system_uniquely_satisfiable(self, system, n):
         """
         Tests unique satisfiable by banning all zero solution
+        :param system: 
+        :param n: 
+        :return: 
         """
-
         # Prep solver
         solver = Solver()
         for clause in system:
@@ -213,11 +236,23 @@ class Sat(object):
         return not sat
 
     def find_equations(self, n, m):
+        """
+        Find unique systems by searching combinations, rather than picking at random.
+        That is, find systems of equations "systematically"
+        :param n: 
+        :param m: 
+        :return: 
+        """
         clauses = self.find_clauses(n)
         systems = self.find_systems(clauses, n, m)
         return systems
 
-    def find_clauses(n):
+    def find_clauses(self, n):
+        """
+        Helper that finds all unique combinations of clauses
+        :param n: 
+        :return: A 2d array of all combinations of 
+        """
         pool = range(1, n + 1)
         clauses = []
         for x in pool:
@@ -233,47 +268,61 @@ class Sat(object):
                         clauses.append(clause)
         return clauses
 
-    def find_system(self, clauses, system, n, m, depth):
-        systems = []
-        if depth > m:
-            # print 'M: '+`m`
-            # print 'Depth: '+`depth`
-            # print 'something wierd is happening'
-            # print 'System: '+`system`
-            # print 'clauses: '+`clauses`
-            return False
+    def find_systems(self, clauses, system, n, m, depth):
+        """
+        Find all systems using recursive method
+        :param clauses: 
+        :param system: 
+        :param n: 
+        :param m: 
+        :param depth: 
+        :return: A system of equations
+        """
 
-        # If length of system = m , then we have long enough system
+        # Base Case
+        # If length of system = m, then we have long enough system
         if len(system) == m:
             for i in range(0, len(system) - 1):
                 if system[i] > system[i + 1]:
                     return False
             # print system
             sat = Sat()
-            if sat.is_system_uniquely_satisfiable(system):
-
-                return system
+            if sat.is_system_uniquely_satisfiable(system, n):
+                return True
             else:
                 return False
 
-        # Else system is not long enough, we need to append to system
+        # Recursive Case
+        # Else, system is not long enough, we need to append to system
         else:
+            systems = []
+
             # For each clause not in the system, add to system
             for clause in clauses:
+
+                # Remove this clause from the pool
                 tail = list(clauses)
                 tail.remove(clause)
-                if clause not in system:
-                    systemTemp = list(system)
-                    systemTemp.append(clause)
-                    sys = self.find_system(tail, systemTemp, n, m, depth + 1)
-                    if sys:
-                        return sys
-        return False
 
-    def find_systems(self, clauses, n, m):
-        return self.find_system(clauses, [], n, m, 0)
+                # Add this clause to the current system and validate
+                system_temp = list(system)
+                system_temp.append(clause)
+                unique_system = self.find_systems(tail, system_temp, n, m, depth + 1)
+
+                # Check if it is a uniquely satisfiable instance or is it a return call
+                if isinstance(unique_system, bool) and unique_system:
+                    systems.append(system_temp)
+                elif unique_system:
+                    systems = systems + unique_system
+
+            return systems
 
     def run_solver(self, **kwargs):
+        """
+        Run Traces through systems and record times
+        :param kwargs: 
+        :return: Null
+        """
         fh = FileHandler()
         ph = ProcessHandler()
         results = []
@@ -310,6 +359,14 @@ class Sat(object):
             fh.update_file("./../assets/systems_run/run", results)
 
     def prepare_cryptominisat_system(self, n, m, system):
+        """
+        Helper to translate a python system to a cryptominisat system
+        Save this translation into a file for processing
+        :param n: 
+        :param m: 
+        :param system: 
+        :return: 
+        """
         # init
         input = [
             'p cnf {0} {1}'.format(n, m)
@@ -326,6 +383,12 @@ class Sat(object):
         return input
 
     def find_pool(self, clauses):
+        """
+        Helper to find variables used
+        Redundant
+        :param clauses: 
+        :return: A list of integers used in clauses
+        """
         variables = []
         for clause in clauses:
             for variable in clause:
@@ -333,22 +396,43 @@ class Sat(object):
                     variables.append(variable)
         return variables
 
-    def save_system(self, n, m, system):
-        fh = FileHandler()
-        path = "./../assets/systems/{0}_{1}".format(n, m)
-        fh.write_to_file(path, system)
-
     def save_systems(self, systems):
+        """
+        Save a set of systems of equations to a file
+        :param systems: 
+        :return: 
+        """
         for system in systems:
             # n, m, system
             self.save_system(system[1], system[2], system[3])
 
+    def save_system(self, n, m, system):
+        """
+        Save a system of equations to file
+        :param n: 
+        :param m: 
+        :param system: 
+        :return: 
+        """
+        fh = FileHandler()
+        path = "./../assets/systems/{0}_{1}".format(n, m)
+        fh.write_to_file(path, system)
+
     def load_results(self):
+        """
+        Load Sat Solver execution results
+        :return: 
+        """
         fh = FileHandler()
         results = fh.read_from_file("./../assets/systems_run/run")
         return results
 
     def convert_system_to_graph(self, system):
+        """
+        Convert a system of equations to a Traces graph
+        :param system: 
+        :return: 
+        """
         fh = FileHandler()
         system = fh.read_from_file("./../assets/systems/100_200")
         n = 100

@@ -1,3 +1,9 @@
+#! /usr/bin/python2.7
+
+"""
+Logic that handles running system processes
+"""
+
 import os
 import subprocess
 import timeit
@@ -6,7 +12,8 @@ import timeit
 class ProcessHandler(object):
     def run_command(self, command):
         """
-        Run a command and return list
+        Run a command and return a list
+        Good for single lined commands
         :param command: 
         :return: 
         """
@@ -21,15 +28,23 @@ class ProcessHandler(object):
 
     def open_process(self, command):
         """
-        Return a subprocess object
+        Prepare a process
+        Useful for multiple inputs
         :param command: 
-        :return: 
+        :return: Return a subprocess object
         """
         process = subprocess.Popen([command], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
         return process
 
     def run_process(self, command, inputs):
+        """
+        Execute a process
+        Useful for multiple inputs
+        :param command: 
+        :param inputs: 
+        :return: 
+        """
         process = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                    stderr=subprocess.PIPE)
         outputs = []
@@ -40,6 +55,14 @@ class ProcessHandler(object):
         return outputs,
 
     def run_function_timed(self, f, args, **kwargs):
+        """
+        Time a process
+        Useful in running Sat Solver and Traces
+        :param f: 
+        :param args: 
+        :param kwargs: 
+        :return: 
+        """
         # print args
         start = timeit.default_timer()
         ret = f(*args)

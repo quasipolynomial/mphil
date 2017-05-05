@@ -1,3 +1,9 @@
+#! /usr/bin/python2.7
+
+"""
+Logic for generating and timing graphs using Traces package
+"""
+
 import re
 import signal
 from handlers.exceptionhandler import signal_handler, TimeoutError
@@ -133,6 +139,11 @@ class Gi(object):
         return results
 
     def generate_random_graphs(self):
+        """
+        Extend random graphs by generating larger versions provided in the Traces package.
+        Random graphs are defined with edge probability 1/2, 1/10 and sqrt(n)
+        :return: 
+        """
         ph = ProcessHandler()
         instances = [5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 100, 200, 300,
                      400, 500, 600, 700, 800, 900, 1000, 2000, 3000, 4000, 5000,

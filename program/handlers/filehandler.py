@@ -1,3 +1,9 @@
+#! /usr/bin/python2.7
+
+"""
+Logic that deals with file I/O
+"""
+
 import os
 import os.path
 import operator
@@ -7,10 +13,22 @@ from processhandler import ProcessHandler
 
 class FileHandler(object):
     def append_to_file(self, path, line):
+        """
+        Add a string to the end of a file
+        :param path: 
+        :param line: 
+        :return: 
+        """
         ph = ProcessHandler()
         ph.run_command("echo '{}'".format(line) + " >> " + path)
 
     def write_to_file_simple(self, path, data):
+        """
+        Write to file using raw strings
+        :param path: 
+        :param data: 
+        :return: 
+        """
         with open(path, 'w') as outfile:
             for datum in data:
                 out = datum
@@ -19,10 +37,22 @@ class FileHandler(object):
                 outfile.write(out)
 
     def write_to_file(self, path, data):
+        """
+        Write an object to file using JSON
+        :param path: 
+        :param data: 
+        :return: 
+        """
         with open(path, 'w') as outfile:
             json.dump(data, outfile)
 
     def read_from_file(self, path, **kwargs):
+        """
+        Read from a file using JSON objects
+        :param path: 
+        :param kwargs: 
+        :return: 
+        """
         if not os.path.isfile(path):
             return False
 
@@ -45,6 +75,12 @@ class FileHandler(object):
         return data
 
     def update_file(self, path, data):
+        """
+        Update a file using a JSON object and keys to update entries
+        :param path: 
+        :param data: 
+        :return: 
+        """
         # Check if has space, otherwise make a new file
         if not self.has_space(path):
             ph = ProcessHandler()
@@ -66,10 +102,20 @@ class FileHandler(object):
         return data
 
     def makedir(self, path):
+        """
+        Create a folder
+        :param path: 
+        :return: 
+        """
         if not os.path.exists(path):
             os.makedirs(path)
 
     def has_space(self, path):
+        """
+        Check if a file has space, that is, it does not exceed 20mb
+        :param path: 
+        :return: 
+        """
         if not os.path.exists(path):
             return True
         statinfo = os.stat(path)
@@ -77,6 +123,12 @@ class FileHandler(object):
         return size < 20
 
     def merge_data(self, data_a, data_b):
+        """
+        Combine the data from multiple JSON sources into one object
+        :param data_a: 
+        :param data_b: 
+        :return: 
+        """
         for datum1 in data_a:
             key1 = datum1[0]
             found = False
