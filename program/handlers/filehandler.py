@@ -74,6 +74,12 @@ class FileHandler(object):
 
         return data
 
+    def read_from_file_simple(self, path):
+        with open(path) as f:
+            data = f.readlines()
+        data = [x.strip() for x in data]
+        return data
+
     def update_file(self, path, data):
         """
         Update a file using a JSON object and keys to update entries

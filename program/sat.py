@@ -62,7 +62,7 @@ class Sat(object):
                 m += step
                 if m < n:
                     m = n
-                if 4 < m / n or found == limit:
+                if 4 < m / n or found and found == limit:
                     break
 
                 key = `n` + ':' + `m`
@@ -94,7 +94,7 @@ class Sat(object):
 
                 # Failed to find and tried too many times
                 elif max_tries == tries:
-                    # print "Skipping: ", n, m
+                    print "Skipping: ", n, m
                     tries = 0
                     results.append([key, n, m, tries, -1, -1])
                     result.append([key, n, m, tries, -1, -1])
@@ -427,38 +427,40 @@ class Sat(object):
         results = fh.read_from_file("./../assets/systems_run/run")
         return results
 
-    def convert_system_to_graph(self, system):
+    def convert_system_to_graph(self, n, m, system):
         """
         Convert a system of equations to a Traces graph
+        First construction used in checking for Automorphisms
         :param system: 
         :return: 
         """
-        fh = FileHandler()
-        system = fh.read_from_file("./../assets/systems/100_200")
-        n = 100
-        m = 200
-        A = np.zeros((n + m, n + m))
+
+        # Empty matrix of correct size
+        width = n + m
+        A = np.zeros((width, width))
+
+        # Insert edges
         c = 0
         for clause in system:
-            A[clause[0] - 1][n + c] = 1
-            A[clause[1] - 1][n + c] = 1
-            A[clause[2] - 1][n + c] = 1
-            # Transpose
-            A[n + c][clause[0] - 1] = 1
-            A[n + c][clause[1] - 1] = 1
-            A[n + c][clause[2] - 1] = 1
+            for i in range(0, 3):
+                A[clause[i] - 1][n + c] = 1
             # Increment
             c = c + 1
 
-        # Graph Pre
+        # Make Symmetric
+        A = np.maximum(A, A.transpose())
+
+        # Prepare Positioning
         L = range(0, n)
         R = range(n, n + m)
-        # Labels
+
+        # Prepare Labels
         labels = range(1, n + 1) + ["C" + str(i) for i in range(1, m + 1)]
         labels_dict = {}
         for i in range(0, n + m):
             labels_dict[i] = labels[i]
-        # Graph
+
+        # Construct Graph
         G = nx.from_numpy_matrix(A)
         pos = nx.spring_layout(G)
         pos = dict()
@@ -467,6 +469,76 @@ class Sat(object):
         nx.draw(G, pos)
         nx.draw_networkx_labels(G, pos, labels_dict)
         plt.draw()
-        plt.show()
+        # plt.show()
 
-        exit()
+        return G
+
+    def convert_system_to_construction(self, n, m, system):
+        """
+        Convert a system of equations into a Traces graph
+        Second construction after checking for automorphisms
+        :param n: 
+        :param m: 
+        :param system: 
+        :return: 
+        """
+        width = (2 * n) + (4 * m)
+        A = np.zeros((width, width))
+
+        # Insert edges
+        c = 0
+        for clause in system:
+            c_pos = (2 * n) + c
+            # 0 0 0
+            A[(clause[0] * 2) - 2][c_pos] = 1
+            A[(clause[1] * 2) - 2][c_pos] = 1
+            A[(clause[2] * 2) - 2][c_pos] = 1
+            # 0 1 1
+            A[(clause[0] * 2) - 2][c_pos + 1] = 1
+            A[(clause[1] * 2) - 1][c_pos + 1] = 1
+            A[(clause[2] * 2) - 1][c_pos + 1] = 1
+            # 1 0 1
+            A[(clause[0] * 2) - 1][c_pos + 2] = 1
+            A[(clause[1] * 2) - 2][c_pos + 2] = 1
+            A[(clause[2] * 2) - 1][c_pos + 2] = 1
+            # 1 1 0
+            A[(clause[0] * 2) - 1][c_pos + 3] = 1
+            A[(clause[1] * 2) - 1][c_pos + 3] = 1
+            A[(clause[2] * 2) - 2][c_pos + 3] = 1
+
+            # Increment
+            c = c + 4
+
+        # Make Symmetric
+        A = np.maximum(A, A.transpose())
+
+        # Prepare Positioning
+        L = range(0, 2 * n)
+        R = range(2 * n, width)
+
+        # Prepare Labels
+        labels_dict = {}
+        labels = []
+        for i in range(1, n + 1):
+            labels.append("{0}F".format(i))
+            labels.append("{0}T".format(i))
+        for i in range(1, m + 1):
+            labels.append("C{0}_1".format(i))
+            labels.append("C{0}_2".format(i))
+            labels.append("C{0}_3".format(i))
+            labels.append("C{0}_4".format(i))
+        for i in range(0, width):
+            labels_dict[i] = labels[i]
+
+        # Construct Graph
+        G = nx.from_numpy_matrix(A)
+        pos = nx.spring_layout(G)
+        pos = dict()
+        pos.update((n, (i, 1)) for i, n in enumerate(R))  # put nodes from X at x=1
+        pos.update((n, (i, 2)) for i, n in enumerate(L))  # put nodes from Y at x=2
+        nx.draw(G, pos)
+        nx.draw_networkx_labels(G, pos, labels_dict)
+        plt.draw()
+        # plt.show()
+
+        return G

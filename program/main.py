@@ -46,7 +46,7 @@ class Main(object):
         sat = Sat()
         ph = PlotHandler()
         fh = FileHandler()
-        data = sat.generate_systems(kwargs)
+        data = sat.generate_systems(**kwargs)
 
     def plot_n_m_results(self, filename, **kwargs):
         """
@@ -110,6 +110,7 @@ if __name__ == "__main__":
 
     main = Main()
 
+    # Graphs
     # graphs = {
     #     "triang": gi.load_graphs()["triang"]
     # }
@@ -120,27 +121,39 @@ if __name__ == "__main__":
     #
     # main.plot_graphs_results(save=True)
 
-    # main.generate_n_m(n=0,
-    #                   min_m=0,
-    #                   max_n=10000,
-    #                   max_m=10000,
-    #                   step=100,
+    # Find
+    # main.generate_n_m(n=4,
+    #                   min_m=4,
+    #                   max_n=10,
+    #                   max_m=10,
+    #                   step=1,
     #                   save_results=True,
     #                   save_systems=True,
     #                   limit=10,
-    #                   bound=False,
-    #                   max_tries=20)
+    #                   bound=True,
+    #                   max_tries=10)
     # main.plot_n_m_results('./../assets/sat_run/0-n-10000_0-m-10000_step-100/results', aggregate=True)
 
+    # Sat Solver
     # main.timed_n_m()
     # main.plot_timed_n_m()
 
     sat = Sat()
-    x = sat.find_equations(5, 6)
-    for i in x:
-        print x.count(i), sat.is_system_uniquely_satisfiable(i, 5)
-        for j in x:
-            if i == j:
-                continue
+    # x = sat.find_equations(5, 6)
+    # for i in x:
+    #     print x.count(i), sat.is_system_uniquely_satisfiable(i, 5)
+    #     for j in x:
+    #         if i == j:
+    #             continue
+    gi = Gi()
+    fh = FileHandler()
+    # system = fh.read_from_file("./../assets/systems/5_5")
+    # n = 5
+    # m = 5
+    m = 1
+    n = 3
+    system = [[1, 2, 3]]
+    G = sat.convert_system_to_construction(n, m, system)
+    gi.convert_graph_to_traces_format(n, m, G, "B")
 
     pass

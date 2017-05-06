@@ -68,6 +68,7 @@ class Gi(object):
     def run_graph_instance(self, graph, graph_instance, **kwargs):
         """
         Run a specific instance on dreadnaut
+        dreadnaut At -a V=0 -m <"[path]" x q
         :param graph: 
         :param graph_instance: 
         :param kwargs: 
@@ -162,3 +163,42 @@ class Gi(object):
                 ph.run_command("./../assets/nauty26r7/genrang -P{0} {1} 1 {2}.g6".format(p, i, dest))
                 ph.run_command("./../assets/nauty26r7/showg -d {0}.g6 {1}.dre".format(dest, dest))
                 # ph.run_command("rm ./../assets/{0}.g6".format(dest))
+
+    def convert_graph_to_traces_format(self, n, m, G, type):
+        """
+        Convert a given networkx graph into dreadnaut format
+        :param n: 
+        :param m: 
+        :param G: 
+        :return: 
+        """
+        if type == "B":
+            nodes = (2 * n) + (4 * m)
+            variables = (2 * n)
+        else:
+            nodes = n + m
+            variables = n
+
+        # Init
+        fh = FileHandler()
+        path = "./../assets/construction/{0}_{1}_{2}.dre".format(n, m, type)
+        path_temp = "./../assets/construction/temp.adjlist"
+
+        # Convert to Adjlist and store temporarily
+        nx.write_adjlist(G, path_temp)
+
+        # Read data and convert
+        data = fh.read_from_file_simple(path_temp)
+        output = ["n={0} $=0 g".format(nodes)]
+        for i in range(3, variables + 3):
+            datum = data[i].split()
+            datum[0] = "{0}:".format(datum[0])
+            output.append(" ".join(datum))
+        output[-1] = "{}.".format(output[-1])
+        output.append("$$")
+
+        # Save as .dre
+        fh.write_to_file_simple(path, output)
+
+        # Convert to dot if necessary
+        # ./nauty26r7/dretodot construction/3.dre construction/3.dot
