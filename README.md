@@ -1,8 +1,11 @@
+# Trello
+https://trello.com/b/vjHrJ35r/mphil
+
 # How to use dretodot
 [nauty installation]./dretodot ./graphs/graph.dre ./out.dot
 
 # How to use nauty - see dreadnaut pdf
-dreadnaut
+dreadnaut 
 sudo apt install nauty
 
 # How to use graphviz
@@ -19,5 +22,6 @@ https://github.com/msoos/cryptominisat.git
 numpy
 cryptominisat
 matplotlib
+
 # apt
 python-tk
