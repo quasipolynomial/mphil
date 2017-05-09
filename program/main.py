@@ -160,9 +160,21 @@ if __name__ == "__main__":
     Command line handling
     """
     main = Main()
+    main.generate_n_m(n=1000,
+                      min_m=1000,
+                      max_n=10000,
+                      max_m=10000,
+                      step=100,
+                      save_results=False,
+                      save_systems=True,
+                      limit=5,
+                      bound=False,
+                      max_tries=20)
+
+    exit()
+    
     gi = Gi()
     main.construct()
-    exit()
     pass
 
     # main.generate_graphs(outstanding=False,

@@ -62,7 +62,7 @@ class Sat(object):
                 m += step
                 if m < n:
                     m = n
-                if 4 < m / n or found and found == limit:
+                if 4 < m / n or (found and found == limit):
                     break
 
                 key = `n` + ':' + `m`
