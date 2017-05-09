@@ -320,6 +320,7 @@ class Sat(object):
     def run_solver(self, **kwargs):
         """
         Run Traces through systems and record times
+        Looking for systems that are faster with gauss off => K-local consistent
         :param kwargs: 
         :return: Null
         """
@@ -333,16 +334,20 @@ class Sat(object):
                 completed.append(result[0])
 
         for filename in ph.run_command('ls -v ./../assets/systems/'):
-            # prep
+            # Init
             path = './../assets/systems/' + filename
             system = fh.read_from_file(path)
             split = filename.split("_")
             n = split[0]
             m = split[1]
+
+            # Skip completed systems
             key = "{0}:{1}".format(n, m)
             if skip and key in completed:
                 continue
             print key
+
+            # Create cryptominisat system
             input = self.prepare_cryptominisat_system(n, m, system)
             fh.write_to_file_simple("./../assets/systems_run/temp_storage", input)
 
@@ -542,3 +547,31 @@ class Sat(object):
         # plt.show()
 
         return G
+
+    def is_k_consistent(self, n, m, system):
+        """
+        Looking for systems that are faster with gauss off => K-local consistent
+        :param n: 
+        :param m: 
+        :param system: 
+        :return: 
+        """
+        ph = ProcessHandler()
+        fh = FileHandler()
+
+        # Create cryptominisat system
+        input = self.prepare_cryptominisat_system(n, m, system)
+        fh.write_to_file_simple("./../assets/construction/temp", input)
+
+        # run gauss off
+        cmd = "./../assets/sat/cryptominisat/build/cryptominisat5 --verb=0 ./../assets/construction/temp"
+        time_a, out_a = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
+
+        # run gauss on
+        cmd = "./../assets/sat/cryptominisat/build_gauss/cryptominisat5 --verb=0 ./../assets/construction/temp"
+        time_b, out_b = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
+
+        # If Gauss On - Gauss Off > Threshold (sec)
+        threshold = time_b - time_a > float(1)
+
+        return threshold

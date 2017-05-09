@@ -18,12 +18,13 @@ from handlers.processhandler import ProcessHandler
 
 # Todo search for smaller range
 # Todo find more instances
-# TODO Build graphs
+# DONE Todo check for k-local consistency
+# DONE Todo Build graphs
 #   2 kinds of graphs
 #   convert
 #   check if has any auto
 #   auto, k locally, uniquely sat,
-# RUN Through traces and check if graph has nothing other than trivial automorphisms
+# DONE Todo RUN Through traces and check if graph has nothing other than trivial automorphisms
 # DONE Todo Run on two different builds
 # DONE Todo Save each system to file
 # DONE Todo extending graphs (random ones)
@@ -125,12 +126,18 @@ class Main(object):
             n = int(n)
             m = int(m)
 
-            # Convert systems into graphs and check for automorphisms
+            # Load system
             system = fh.read_from_file(system_path)
+
+            # Check for k-local consistency
+            if not sat.is_k_consistent(n, m, system):
+                continue
+
+            # Convert system into graphs and check for automorphisms
             G = sat.convert_system_to_graph(n, m, system)
-            gi.convert_graph_to_traces(n, m, G, "A")
+            gi.convert_graph_to_traces(n, m, G, "A")  # First construction
             if not gi.graph_has_automorphisms(graph_path):
-                gi.convert_graph_to_traces(n, m, G, "B")
+                gi.convert_graph_to_traces(n, m, G, "B")  # Second construction
             else:
                 ph.run_command("rm " + graph_path)
 
@@ -155,7 +162,7 @@ if __name__ == "__main__":
     main = Main()
     gi = Gi()
     main.construct()
-
+    exit()
     pass
 
     # main.generate_graphs(outstanding=False,
