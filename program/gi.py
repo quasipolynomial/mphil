@@ -164,7 +164,7 @@ class Gi(object):
                 ph.run_command("./../assets/nauty26r7/showg -d {0}.g6 {1}.dre".format(dest, dest))
                 # ph.run_command("rm ./../assets/{0}.g6".format(dest))
 
-    def convert_graph_to_traces_format(self, n, m, G, type):
+    def convert_graph_to_traces(self, n, m, G, type):
         """
         Convert a given networkx graph into dreadnaut format
         :param n: 
@@ -202,3 +202,17 @@ class Gi(object):
 
         # Convert to dot if necessary
         # ./nauty26r7/dretodot construction/3.dre construction/3.dot
+
+    def graph_has_automorphisms(self, path):
+        """
+        Check if a given graph has any automorphisms 
+        :param path: 
+        :return: True of if has, False otherwise
+        """
+        ph = ProcessHandler()
+        process = ph.open_process("dreadnaut")
+        time, (stdout, stderr) = ph.run_function_timed(process.communicate,
+                                                       ('At -a V=0 -m <"' + path + '" x q',),
+                                                       return_args=True)
+
+        return False if stdout.split(";")[2].split()[0] == '0' else True
