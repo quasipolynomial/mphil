@@ -102,18 +102,61 @@ class Main(object):
         results = sat.load_results()
         ph.plot_gauss_results(results)
 
+    def construct(self):
+        """
+        Convert found systems into graphs and run them through Traces
+        :return: 
+        """
+        # Init
+        gi = Gi()
+        sat = Sat()
+        ph = ProcessHandler()
+        fh = FileHandler()
+        paths = ph.run_command("ls -v ./../assets/systems_to_convert/")
+
+        # Iterate systems
+        for path in paths:
+            # Paths
+            graph_path = "./../assets/construction/" + path + "_A.dre"
+            system_path = "./../assets/systems_to_convert/" + path
+
+            # Extract n and m values
+            n, m = path.split("_")
+            n = int(n)
+            m = int(m)
+
+            # Convert systems into graphs and check for automorphisms
+            system = fh.read_from_file(system_path)
+            G = sat.convert_system_to_graph(n, m, system)
+            gi.convert_graph_to_traces(n, m, G, "A")
+            if not gi.graph_has_automorphisms(graph_path):
+                gi.convert_graph_to_traces(n, m, G, "B")
+            else:
+                ph.run_command("rm " + graph_path)
+
+    def time_constructions(self):
+        """
+        Run new constructions through Traces
+        :return: 
+        """
+        gi = Gi()
+        ph = PlotHandler()
+        graphs = {
+            "construction_custom": gi.load_graphs()["construction_custom"]
+        }
+        results = gi.run_graphs(graphs)
+        ph.plot_gi_results(results)
+
 
 if __name__ == "__main__":
     """
     Command line handling
     """
-
     main = Main()
+    gi = Gi()
+    main.construct()
 
-    # Graphs
-    # graphs = {
-    #     "triang": gi.load_graphs()["triang"]
-    # }
+    pass
 
     # main.generate_graphs(outstanding=False,
     #                      timeout=False,
@@ -122,17 +165,17 @@ if __name__ == "__main__":
     # main.plot_graphs_results(save=True)
 
     # Find
-    # main.generate_n_m(n=4,
-    #                   min_m=4,
-    #                   max_n=10,
-    #                   max_m=10,
-    #                   step=1,
-    #                   save_results=True,
-    #                   save_systems=True,
-    #                   limit=10,
-    #                   bound=True,
-    #                   max_tries=10)
-    # main.plot_n_m_results('./../assets/sat_run/0-n-10000_0-m-10000_step-100/results', aggregate=True)
+    main.generate_n_m(n=1000,
+                      min_m=1000,
+                      max_n=10000,
+                      max_m=10000,
+                      step=100,
+                      save_results=False,
+                      save_systems=False,
+                      limit=10,
+                      bound=True,
+                      max_tries=10)
+    main.plot_n_m_results('./../assets/sat_run/0-n-10000_0-m-10000_step-100/results', aggregate=True)
 
     # Sat Solver
     # main.timed_n_m()
@@ -145,7 +188,7 @@ if __name__ == "__main__":
     #     for j in x:
     #         if i == j:
     #             continue
-    gi = Gi()
+
     fh = FileHandler()
     # system = fh.read_from_file("./../assets/systems/5_5")
     # n = 5
