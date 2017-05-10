@@ -44,6 +44,7 @@ class Sat(object):
         save_results = kwargs.get("save_results", False)
         bound = kwargs.get("bound", False)
         limit = kwargs.get("limit", False)
+        threshold_search = kwargs.get("threshold_search", False)
 
         # Prep folder
         fh.makedir(save_dir)
@@ -62,6 +63,8 @@ class Sat(object):
                 m += step
                 if m < n:
                     m = n
+                elif threshold_search and m == n and limit:
+                    m = (2 * n) - (0.5 * limit)
                 if 4 < m / n or (found and found == limit):
                     break
 

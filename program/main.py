@@ -159,63 +159,147 @@ if __name__ == "__main__":
     """
     Command line handling
     """
+
+
+# Tests
+
+def test_1():
+    """
+    Threshold search 1: 1000 - 10000
+    :return: 
+    """
     main = Main()
     main.generate_n_m(n=1000,
                       min_m=1000,
                       max_n=10000,
                       max_m=10000,
                       step=100,
+                      save_results=True,
+                      save_systems=True,
+                      limit=10,
+                      bound=True,
+                      max_tries=10,
+                      threshold_search=True)
+    main.plot_n_m_results('./../assets/sat_run/0-n-10000_0-m-10000_step-100/results', aggregate=True)
+
+
+def test_2():
+    """
+    Search 1: 1 - 100
+    :return: 
+    """
+    main = Main()
+    main.generate_n_m(n=1,
+                      min_m=1,
+                      max_n=100,
+                      max_m=100,
+                      step=1,
                       save_results=False,
                       save_systems=True,
-                      limit=5,
+                      limit=False,
                       bound=False,
-                      max_tries=20)
+                      max_tries=10)
 
-    exit()
-    
-    gi = Gi()
-    main.construct()
-    pass
 
-    # main.generate_graphs(outstanding=False,
-    #                      timeout=False,
-    #                      save=True)
-    #
-    # main.plot_graphs_results(save=True)
+def test_2():
+    """
+    Search 2: 100 - 1000
+    + 10
+    :return: 
+    """
+    main = Main()
+    main.generate_n_m(n=100,
+                      min_m=100,
+                      max_n=1000,
+                      max_m=1000,
+                      step=10,
+                      save_results=False,
+                      save_systems=True,
+                      limit=False,
+                      bound=False,
+                      max_tries=10)
 
-    # Find
+
+def test_3():
+    """
+    Search 3: 1000 - 10000
+    + 100
+    :return: 
+    """
+    main = Main()
     main.generate_n_m(n=1000,
                       min_m=1000,
                       max_n=10000,
                       max_m=10000,
                       step=100,
-                      save_results=False,
-                      save_systems=False,
+                      save_results=True,
+                      save_systems=True,
                       limit=10,
                       bound=True,
                       max_tries=10)
-    main.plot_n_m_results('./../assets/sat_run/0-n-10000_0-m-10000_step-100/results', aggregate=True)
 
-    # Sat Solver
-    # main.timed_n_m()
-    # main.plot_timed_n_m()
 
+def test_4():
+    """
+    Search 4: 10000 - 50000
+    + 1000
+    :return: 
+    """
+    main = Main()
+    main.generate_n_m(n=10000,
+                      min_m=10000,
+                      max_n=50000,
+                      max_m=50000,
+                      step=1000,
+                      save_results=False,
+                      save_systems=True,
+                      limit=5,
+                      bound=True,
+                      max_tries=5)
+
+
+def test_5():
+    """
+    Run sat solver through saved instances
+    :return: 
+    """
+    main = Main()
+    main.timed_n_m()
+    main.plot_timed_n_m()
+
+
+def test_6():
+    """
+    Convert saved instances to graphs and run
+    :return: 
+    """
+    main = Main()
+    main.construct()
+    main.time_constructions()
+
+
+def test_7():
+    """
+    Run saved .dre graphs through Traces and time results
+    :return: 
+    """
+    main = Main()
+    main.generate_graphs(outstanding=False,
+                         timeout=False,
+                         save=True)
+
+    main.plot_graphs_results(save=True)
+
+
+def test_8():
+    """
+    Use recursion to find instances for a given n and m rather than randomly searching
+    :return: 
+    """
     sat = Sat()
-    # x = sat.find_equations(5, 6)
-    # for i in x:
-    #     print x.count(i), sat.is_system_uniquely_satisfiable(i, 5)
-    #     for j in x:
-    #         if i == j:
-    #             continue
-
-    fh = FileHandler()
-    # system = fh.read_from_file("./../assets/systems/5_5")
-    # n = 5
-    # m = 5
-    m = 1
-    n = 3
-    system = [[1, 2, 3]]
-    G = sat.convert_system_to_construction(n, m, system)
-    gi.convert_graph_to_traces_format(n, m, G, "B")
-
-    pass
+    x = sat.find_equations(5, 6)
+    for i in x:
+        print x.count(i), sat.is_system_uniquely_satisfiable(i, 5)
+        for j in x:
+            if i == j:
+                continue
