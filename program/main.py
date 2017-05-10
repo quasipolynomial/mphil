@@ -155,10 +155,6 @@ class Main(object):
         ph.plot_gi_results(results)
 
 
-if __name__ == "__main__":
-    """
-    Command line handling
-    """
 
 
 # Tests
@@ -303,3 +299,10 @@ def test_8():
         for j in x:
             if i == j:
                 continue
+
+
+if __name__ == "__main__":
+    """
+    Command line handling
+    """
+    test_1()
