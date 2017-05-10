@@ -64,7 +64,7 @@ class Sat(object):
                 if m < n:
                     m = n
                 elif threshold_search and m == n and limit:
-                    m = (2 * n) - (0.5 * limit)
+                    m = (2 * n) - (0.5 * limit )
                 if 4 < m / n or (found and found == limit):
                     break
 
