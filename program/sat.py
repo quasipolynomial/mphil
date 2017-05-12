@@ -435,7 +435,7 @@ class Sat(object):
         results = fh.read_from_file("./../assets/systems_run/run")
         return results
 
-    def convert_system_to_graph(self, n, m, system):
+    def convert_system_to_graph(self, n, m, system, **kwargs):
         """
         Convert a system of equations to a Traces graph
         First construction used in checking for Automorphisms
@@ -470,18 +470,19 @@ class Sat(object):
 
         # Construct Graph
         G = nx.from_numpy_matrix(A)
-        pos = nx.spring_layout(G)
-        pos = dict()
-        pos.update((n, (i, 1)) for i, n in enumerate(R))  # put nodes from X at x=1
-        pos.update((n, (i, 2)) for i, n in enumerate(L))  # put nodes from Y at x=2
-        nx.draw(G, pos)
-        nx.draw_networkx_labels(G, pos, labels_dict)
-        plt.draw()
-        # plt.show()
+        if kwargs.get("plot", False):
+            pos = nx.spring_layout(G)
+            pos = dict()
+            pos.update((n, (i, 1)) for i, n in enumerate(R))  # put nodes from X at x=1
+            pos.update((n, (i, 2)) for i, n in enumerate(L))  # put nodes from Y at x=2
+            nx.draw(G, pos)
+            nx.draw_networkx_labels(G, pos, labels_dict)
+            plt.draw()
+            plt.show()
 
         return G
 
-    def convert_system_to_construction(self, n, m, system):
+    def convert_system_to_construction(self, n, m, system, **kwargs):
         """
         Convert a system of equations into a Traces graph
         Second construction after checking for automorphisms
@@ -540,14 +541,15 @@ class Sat(object):
 
         # Construct Graph
         G = nx.from_numpy_matrix(A)
-        pos = nx.spring_layout(G)
-        pos = dict()
-        pos.update((n, (i, 1)) for i, n in enumerate(R))  # put nodes from X at x=1
-        pos.update((n, (i, 2)) for i, n in enumerate(L))  # put nodes from Y at x=2
-        nx.draw(G, pos)
-        nx.draw_networkx_labels(G, pos, labels_dict)
-        plt.draw()
-        # plt.show()
+        if kwargs.get("plot", False):
+            pos = nx.spring_layout(G)
+            pos = dict()
+            pos.update((n, (i, 1)) for i, n in enumerate(R))  # put nodes from X at x=1
+            pos.update((n, (i, 2)) for i, n in enumerate(L))  # put nodes from Y at x=2
+            nx.draw(G, pos)
+            nx.draw_networkx_labels(G, pos, labels_dict)
+            plt.draw()
+            plt.show()
 
         return G
 
@@ -580,6 +582,6 @@ class Sat(object):
 
         # If Gauss On - Gauss Off > Threshold (sec)
         # threshold = time_b - time_a > float(1)
-        threshold = time_b < time_a # No threshold determined
+        threshold = time_b < time_a  # No threshold determined
 
         return threshold

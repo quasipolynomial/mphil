@@ -140,7 +140,8 @@ class Main(object):
                 G = sat.convert_system_to_construction(n, m, system)
                 gi.convert_graph_to_traces(n, m, G, "B")  # Second construction
             else:
-                ph.run_command("rm " + graph_path)
+                ph.run_command("rm " + graph_path) # Remove unwanted graph
+                ph.run_command("rm " + system_path) # Remove unwanted system
 
     def time_constructions(self):
         """
