@@ -117,6 +117,8 @@ class Main(object):
 
         # Iterate systems
         for path in paths:
+            print "Checking " + path
+
             # Paths
             graph_path = "./../assets/construction/" + path + "_A.dre"
             system_path = "./../assets/systems_to_convert/" + path
@@ -131,17 +133,23 @@ class Main(object):
 
             # # Check for k-local consistency
             if not sat.is_k_consistent(n, m, system):
+                print "\t Not K consistent system. Removing and skipping."
+                ph.run_command("rm " + system_path)
                 continue
+            else:
+                print "\t K consistent system. Constructing A."
 
             # Convert system into graphs and check for automorphisms
             G = sat.convert_system_to_graph(n, m, system)
             gi.convert_graph_to_traces(n, m, G, "A")  # First construction
             if not gi.graph_has_automorphisms(graph_path):
+                print "\t No Automorphisms. Constructing B."
                 G = sat.convert_system_to_construction(n, m, system)
                 gi.convert_graph_to_traces(n, m, G, "B")  # Second construction
             else:
-                ph.run_command("rm " + graph_path) # Remove unwanted graph
-                ph.run_command("rm " + system_path) # Remove unwanted system
+                print "\t Automorphisms. Removing and skipping."
+                ph.run_command("rm " + graph_path)  # Remove unwanted graph
+                ph.run_command("rm " + system_path)  # Remove unwanted system
 
     def time_constructions(self):
         """
@@ -155,8 +163,6 @@ class Main(object):
         }
         results = gi.run_graphs(graphs)
         ph.plot_gi_results(results)
-
-
 
 
 # Tests
