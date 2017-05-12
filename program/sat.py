@@ -554,6 +554,10 @@ class Sat(object):
     def is_k_consistent(self, n, m, system):
         """
         Looking for systems that are faster with gauss off => K-local consistent
+              
+        on vs off
+        faster on versus off
+        
         :param n: 
         :param m: 
         :param system: 
@@ -575,6 +579,7 @@ class Sat(object):
         time_b, out_b = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
 
         # If Gauss On - Gauss Off > Threshold (sec)
-        threshold = time_b - time_a > float(1)
+        # threshold = time_b - time_a > float(1)
+        threshold = time_b < time_a # No threshold determined
 
         return threshold

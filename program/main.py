@@ -129,7 +129,7 @@ class Main(object):
             # Load system
             system = fh.read_from_file(system_path)
 
-            # Check for k-local consistency
+            # # Check for k-local consistency
             if not sat.is_k_consistent(n, m, system):
                 continue
 
@@ -137,6 +137,7 @@ class Main(object):
             G = sat.convert_system_to_graph(n, m, system)
             gi.convert_graph_to_traces(n, m, G, "A")  # First construction
             if not gi.graph_has_automorphisms(graph_path):
+                G = sat.convert_system_to_construction(n, m, system)
                 gi.convert_graph_to_traces(n, m, G, "B")  # Second construction
             else:
                 ph.run_command("rm " + graph_path)
@@ -271,7 +272,7 @@ def test_6():
     """
     main = Main()
     main.construct()
-    main.time_constructions()
+    # main.time_constructions()
 
 
 def test_7():
@@ -305,4 +306,4 @@ if __name__ == "__main__":
     """
     Command line handling
     """
-    test_1()
+    test_6()
