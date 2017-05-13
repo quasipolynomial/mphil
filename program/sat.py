@@ -39,15 +39,17 @@ class Sat(object):
         n = kwargs.get("n", 4)
         max_n = kwargs.get("max_n", 100)
         max_m = kwargs.get("max_m", 100)
-        bound = kwargs.get("bound", False)
+        # Complex looping params
+        efficient_search = kwargs.get("limited_search", False)
         limit = kwargs.get("limit", False)
-        threshold_search = kwargs.get("threshold_search", False)
-
+        upper_bound = kwargs.get("upper_bound", 4)
+        lower_bound = kwargs.get("lower_bound", 1)
         # Additional params
         save_results_dir = "./../assets/sat_run/{0}-n-{1}_{2}-m-{3}_step-{4}".format(n, max_n, min_m, max_m, step)
         save_results = kwargs.get("save_results", False)
         save_systems = kwargs.get("save_systems", False)
         gi = kwargs.get("gi", False)
+        update_strongly_k = kwargs.get("update_strongly_k", False)
 
         # Prep results folder
         if save_results or save_systems or gi:
@@ -67,14 +69,9 @@ class Sat(object):
             n_results = []
             n_systems = []
 
-            # Prepare m value
-            if threshold_search and limit:
-                # Searching along the threshold
-                # m = 1/2 n
-                m = int((2 * n) - (0.5 * (limit * step)))
-            elif min_m < n:
+            if min_m < n:
                 # If m is smaller than n, then bring m up to speed
-                m = n
+                m = lower_bound * n
             else:
                 m = min_m
 
@@ -89,7 +86,7 @@ class Sat(object):
                     n_results.append([key, n, m, tries, -1, -1])
                     m += step
                     continue
-                elif 4 < m / n or (found and found == limit):
+                elif m > (upper_bound * n) or (found and found == limit):
                     # Do not search for m > 4n or continue to next m if adequate systems are found
                     break
 
@@ -101,7 +98,8 @@ class Sat(object):
 
                 # Validate system
                 if self.is_system_uniquely_satisfiable(system, n) \
-                        and ((gi and self.is_system_eligble(n, m, system, gi, save_results_dir)) or not gi):
+                        and ((gi and self.is_system_eligble(n, m, system, gi, save_results_dir)) or not gi) \
+                        and ((update_strongly_k and self.is_system_slower(n, m, system)) or not update_strongly_k):
 
                     # Found unique system
                     print "Found: {0} {1}".format(n, m)
@@ -115,10 +113,13 @@ class Sat(object):
                     # Update iterators
                     tries = 0
                     found += 1
-                    if bound and not smallest_m_found:
+                    if efficient_search and not smallest_m_found:
                         # Update the lower bound
                         min_m = m - step
                         smallest_m_found = True
+
+                    if update_strongly_k:
+                        self.update_strongly_k(n, m, system)
                 else:
                     # Failed to find, try again
                     # print 'Couldnt find for {0} {1} Misses {2}'.format(n, m, tries)
@@ -251,6 +252,7 @@ class Sat(object):
         """
         # Init
         ph = ProcessHandler()
+        fh = FileHandler()
         graph_path = "{0}/constructions/".format(location)
         system_path = "{0}/constructions/{1}_{2}".format(location, n, m)
         construct_a_location = "{0}{1}_{2}_A.dre".format(graph_path, n, m)
@@ -263,19 +265,47 @@ class Sat(object):
         # Check for k-local consistency
         if not self.is_k_consistent(n, m, system):
             # print "Not K consistent"
-            ph.run_command("rm '{0}'".format(system_path))
+            fh.delete_file(system_path)
             return False
         elif not gi.graph_has_automorphisms(construct_a_location):
             # print "No Automorphisms. Construct."
             G = self.convert_system_to_construction(n, m, system)
             gi.convert_graph_to_traces(n, m, G, "B", graph_path)  # Second construction
-            ph.run_command("rm '{0}'".format(system_path))
+            fh.delete_file(system_path)
             return True
         else:
             # print "Automorphisms. Remove."
-            ph.run_command("rm '{0}'".format(construct_a_location))  # Remove unwanted graph
-            ph.run_command("rm '{0}'".format(system_path))  # Remove unwanted system
+            fh.delete_file(construct_a_location)  # Remove unwanted graph
+            fh.delete_file(system_path)  # Remove unwanted system
             return False
+
+    def is_system_slower(self, n, m, system):
+        fh = FileHandler()
+        path = "./../assets/systems_strongly_k/{0}_{1}".format(n, m)
+        temp_path_a = "./../assets/temp/temp_a"
+        temp_path_b = "./../assets/temp/temp_b"
+        system_old = fh.read_from_file(path)
+
+        if not system_old:
+            return True
+
+        fh.write_to_file_simple(temp_path_a, self.prepare_cryptominisat_system(n, m, system))
+        fh.write_to_file_simple(temp_path_b, self.prepare_cryptominisat_system(n, m, system_old))
+        time_a = self.get_gauss_on_time(temp_path_a)
+        time_b = self.get_gauss_on_time(temp_path_b)
+
+        if time_a > time_b:
+            print "Slower {0}".format(time_a - time_b)
+            pass
+
+        return time_a > time_b
+
+    def update_strongly_k(self, n, m, system):
+        ph = ProcessHandler()
+        fh = FileHandler()
+        path = "./../assets/systems_strongly_k/{0}_{1}".format(n, m)
+        fh.delete_file(path)
+        self.save_system(n, m, system, "./../assets/systems_strongly_k/")
 
     def find_equations(self, n, m):
         """
@@ -390,19 +420,10 @@ class Sat(object):
             print key
 
             # Create cryptominisat system
-            input = self.prepare_cryptominisat_system(n, m, system)
-            fh.write_to_file_simple("./../assets/systems_run/temp_storage", input)
-
-            # run gauss off
-            cmd = "./../assets/sat/cryptominisat/build/cryptominisat5 --verb=0 ./../assets/systems_run/temp_storage"
-            time_a, out_a = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
-
-            # run gauss on
-            cmd = "./../assets/sat/cryptominisat/build_gauss/cryptominisat5 --verb=0 ./../assets/systems_run/temp_storage"
-            time_b, out_b = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
+            time_off, time_on = self.get_gauss_times(n, m, system)
 
             # Save
-            results.append([key, n, m, time_a, time_b, time_b - time_a])
+            results.append([key, n, m, time_off, time_on, time_off - time_on])
             fh.update_file("./../assets/systems_run/run", results)
 
     def prepare_cryptominisat_system(self, n, m, system):
@@ -628,20 +649,39 @@ class Sat(object):
         ph = ProcessHandler()
         fh = FileHandler()
 
-        # Create cryptominisat system
-        input = self.prepare_cryptominisat_system(n, m, system)
-        fh.write_to_file_simple("./../assets/construction/temp", input)
-
-        # run gauss off
-        cmd = "./../assets/sat/cryptominisat/build/cryptominisat5 --verb=0 ./../assets/construction/temp"
-        time_a, out_a = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
-
-        # run gauss on
-        cmd = "./../assets/sat/cryptominisat/build_gauss/cryptominisat5 --verb=0 ./../assets/construction/temp"
-        time_b, out_b = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
+        # Get times
+        time_off, time_on = self.get_gauss_times(n, m, system)
 
         # If Gauss On - Gauss Off > Threshold (sec)
         # threshold = time_b - time_a > float(1)
-        threshold = time_b < time_a  # No threshold determined
+        threshold = time_on < time_off  # No threshold determined
 
         return threshold
+
+    def get_gauss_times(self, n, m, system):
+        path = "./../assets/temp/temp_gauss_check"
+        fh = FileHandler()
+
+        # Create cryptominisat system
+        input = self.prepare_cryptominisat_system(n, m, system)
+        fh.write_to_file_simple(path, input)
+
+        # run gauss off
+        time_off = self.get_gauss_on_time(path)
+
+        # run gauss on
+        time_on = self.get_gauss_off_time(path)
+
+        return time_off, time_on
+
+    def get_gauss_off_time(self, path):
+        ph = ProcessHandler()
+        cmd = "./../assets/sat/cryptominisat/build/cryptominisat5 --verb=0 {0}".format(path)
+        time, out = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
+        return time
+
+    def get_gauss_on_time(self, path):
+        ph = ProcessHandler()
+        cmd = "./../assets/sat/cryptominisat/build_gauss/cryptominisat5 --verb=0 {0}".format(path)
+        time, out = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
+        return time

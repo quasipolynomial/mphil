@@ -103,7 +103,7 @@ class Main(object):
         results = sat.load_results()
         ph.plot_gauss_results(results)
 
-    def construct(self):
+    def convert_systems(self):
         """
         Convert found systems into graphs and run them through Traces
         :return: 
@@ -134,7 +134,7 @@ class Main(object):
             # Check for k-local consistency
             if not sat.is_k_consistent(n, m, system):
                 print "\t Not K consistent system. Removing and skipping."
-                ph.run_command("rm " + system_path)
+                fh.delete_file(system_path)
                 continue
             else:
                 print "\t K consistent system. Constructing A."
@@ -148,8 +148,8 @@ class Main(object):
                 gi.convert_graph_to_traces(n, m, G, "B", "./../assets/construction/")  # Second construction
             else:
                 print "\t Automorphisms. Removing and skipping."
-                ph.run_command("rm " + graph_path)  # Remove unwanted graph
-                ph.run_command("rm " + system_path)  # Remove unwanted system
+                fh.delete_file(graph_path)  # Remove unwanted graph
+                fh.delete_file(system_path)  # Remove unwanted system
 
     def time_constructions(self):
         """
@@ -181,7 +181,6 @@ def test_1():
                       save_results=False,
                       save_systems=True,
                       limit=False,
-                      bound=False,
                       max_tries=30)
 
 
@@ -200,7 +199,6 @@ def test_2():
                       save_results=False,
                       save_systems=True,
                       limit=False,
-                      bound=False,
                       max_tries=10)
 
 
@@ -219,7 +217,7 @@ def test_3():
                       save_results=True,
                       save_systems=True,
                       limit=10,
-                      bound=True,
+                      efficient_search=True,
                       max_tries=10)
 
 
@@ -238,7 +236,6 @@ def test_4():
                       save_results=False,
                       save_systems=True,
                       limit=5,
-                      bound=True,
                       max_tries=5)
 
 
@@ -258,7 +255,7 @@ def test_6():
     :return: 
     """
     main = Main()
-    main.construct()
+    main.convert_systems()
     # main.time_constructions()
 
 
@@ -305,7 +302,7 @@ def test_9():
                       min_m=4,
                       max_n=100,
                       max_m=100,
-                      step=1,
+                      step=10,
                       save_results=True,
                       save_systems=True,
                       gi=Gi())
@@ -324,14 +321,59 @@ def test_10():
                       step=100,
                       save_results=True,
                       save_systems=True,
-                      limit=10,
-                      bound=True,
-                      threshold_search=True)
+                      limit=10)
     main.plot_n_m_results('./../assets/sat_run/0-n-10000_0-m-10000_step-100/results', aggregate=True)
+
+
+def test_11():
+    """
+    Construction search 2
+    Generate systems that also fulfil construction criteria
+    - k consistent
+    - No automorphisms
+
+    Slow
+    Systems are saved to construction_search
+    :return: 
+    """
+    main = Main()
+    main.generate_n_m(n=1000,
+                      min_m=1000,
+                      max_n=10000,
+                      max_m=20000,
+                      step=1000,
+                      save_results=True,
+                      save_systems=True,
+                      upper_bound=2,
+                      lower_bound=1,
+                      max_tries=30,
+                      gi=Gi())
+
+
+def test_12():
+    """
+    Update strongly k directory
+    :return: 
+    """
+    main = Main()
+    main.generate_n_m(n=10,
+                      min_m=10,
+                      max_n=100,
+                      max_m=200,
+                      step=10,
+                      save_results=True,
+                      save_systems=True,
+                      upper_bound=3,
+                      lower_bound=1,
+                      max_tries=30,
+                      update_strongly_k=True,
+                      gi=Gi())
 
 
 if __name__ == "__main__":
     """
     Command line handling
     """
-    test_9()
+    # test_11()
+    # test_12()
+    test_6()

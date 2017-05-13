@@ -182,7 +182,7 @@ class Gi(object):
         # Init
         fh = FileHandler()
         path = dir + "{0}_{1}_{2}.dre".format(n, m, type)
-        path_temp = dir + "temp.adjlist"
+        path_temp = "./../assets/temp/temp.adjlist"
 
         # Convert to Adjlist and store temporarily
         nx.write_adjlist(G, path_temp)
@@ -203,6 +203,8 @@ class Gi(object):
         # Convert to dot if necessary
         # ./nauty26r7/dretodot construction/3.dre construction/3.dot
 
+        return path
+
     def graph_has_automorphisms(self, path):
         """
         Check if a given graph has any automorphisms 
@@ -216,3 +218,16 @@ class Gi(object):
                                                        return_args=True)
 
         return False if stdout.split(";")[2].split()[0] == '0' else True
+
+    def is_graph_slower(self, path_a, path_b):
+
+        ph = ProcessHandler()
+        process = ph.open_process("dreadnaut")
+        time_a, (stdout, stderr) = ph.run_function_timed(process.communicate,
+                                                         ('At -a V=0 -m <"' + path_a + '" x q',),
+                                                         return_args=True)
+        time_b, (stdout, stderr) = ph.run_function_timed(process.communicate,
+                                                         ('At -a V=0 -m <"' + path_b + '" x q',),
+                                                         return_args=True)
+
+        return time_a > time_b

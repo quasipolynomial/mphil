@@ -152,3 +152,11 @@ class FileHandler(object):
             if found == False:
                 data_b.append(datum1)
         return data_b
+
+    def is_file(self, path):
+        return os.path.exists(path)
+
+    def delete_file(self, path):
+        ph = ProcessHandler()
+        if self.is_file(path):
+            ph.run_command("rm '{0}'".format(path))
