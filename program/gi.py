@@ -164,7 +164,7 @@ class Gi(object):
                 ph.run_command("./../assets/nauty26r7/showg -d {0}.g6 {1}.dre".format(dest, dest))
                 # ph.run_command("rm ./../assets/{0}.g6".format(dest))
 
-    def convert_graph_to_traces(self, n, m, G, type):
+    def convert_graph_to_traces(self, n, m, G, type, dir):
         """
         Convert a given networkx graph into dreadnaut format
         :param n: 
@@ -181,8 +181,8 @@ class Gi(object):
 
         # Init
         fh = FileHandler()
-        path = "./../assets/construction/{0}_{1}_{2}.dre".format(n, m, type)
-        path_temp = "./../assets/construction/temp.adjlist"
+        path = dir + "{0}_{1}_{2}.dre".format(n, m, type)
+        path_temp = dir + "temp.adjlist"
 
         # Convert to Adjlist and store temporarily
         nx.write_adjlist(G, path_temp)

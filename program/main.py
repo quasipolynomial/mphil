@@ -47,7 +47,7 @@ class Main(object):
         sat = Sat()
         ph = PlotHandler()
         fh = FileHandler()
-        data = sat.generate_systems(**kwargs)
+        results, systems = sat.generate_systems(**kwargs)
 
     def plot_n_m_results(self, filename, **kwargs):
         """
@@ -131,7 +131,7 @@ class Main(object):
             # Load system
             system = fh.read_from_file(system_path)
 
-            # # Check for k-local consistency
+            # Check for k-local consistency
             if not sat.is_k_consistent(n, m, system):
                 print "\t Not K consistent system. Removing and skipping."
                 ph.run_command("rm " + system_path)
@@ -141,11 +141,11 @@ class Main(object):
 
             # Convert system into graphs and check for automorphisms
             G = sat.convert_system_to_graph(n, m, system)
-            gi.convert_graph_to_traces(n, m, G, "A")  # First construction
+            gi.convert_graph_to_traces(n, m, G, "A", "./../assets/construction/")  # First construction
             if not gi.graph_has_automorphisms(graph_path):
                 print "\t No Automorphisms. Constructing B."
                 G = sat.convert_system_to_construction(n, m, system)
-                gi.convert_graph_to_traces(n, m, G, "B")  # Second construction
+                gi.convert_graph_to_traces(n, m, G, "B", "./../assets/construction/")  # Second construction
             else:
                 print "\t Automorphisms. Removing and skipping."
                 ph.run_command("rm " + graph_path)  # Remove unwanted graph
@@ -169,32 +169,12 @@ class Main(object):
 
 def test_1():
     """
-    Threshold search 1: 1000 - 10000
-    :return: 
-    """
-    main = Main()
-    main.generate_n_m(n=1000,
-                      min_m=1000,
-                      max_n=10000,
-                      max_m=10000,
-                      step=100,
-                      save_results=True,
-                      save_systems=True,
-                      limit=10,
-                      bound=True,
-                      max_tries=10,
-                      threshold_search=True)
-    main.plot_n_m_results('./../assets/sat_run/0-n-10000_0-m-10000_step-100/results', aggregate=True)
-
-
-def test_2():
-    """
     Search 1: 1 - 100
     :return: 
     """
     main = Main()
-    main.generate_n_m(n=1,
-                      min_m=1,
+    main.generate_n_m(n=4,
+                      min_m=4,
                       max_n=100,
                       max_m=100,
                       step=1,
@@ -202,7 +182,7 @@ def test_2():
                       save_systems=True,
                       limit=False,
                       bound=False,
-                      max_tries=10)
+                      max_tries=30)
 
 
 def test_2():
@@ -309,8 +289,49 @@ def test_8():
                 continue
 
 
+def test_9():
+    """
+    Construction search
+    Generate systems that also fulfil construction criteria
+    - k consistent
+    - No automorphisms
+    
+    Slow
+    Systems are saved to construction_search
+    :return: 
+    """
+    main = Main()
+    main.generate_n_m(n=4,
+                      min_m=4,
+                      max_n=100,
+                      max_m=100,
+                      step=1,
+                      save_results=True,
+                      save_systems=True,
+                      gi=Gi())
+
+
+def test_10():
+    """
+    Threshold search 1: 1000 - 10000
+    :return: 
+    """
+    main = Main()
+    main.generate_n_m(n=1000,
+                      min_m=1000,
+                      max_n=10000,
+                      max_m=10000,
+                      step=100,
+                      save_results=True,
+                      save_systems=True,
+                      limit=10,
+                      bound=True,
+                      threshold_search=True)
+    main.plot_n_m_results('./../assets/sat_run/0-n-10000_0-m-10000_step-100/results', aggregate=True)
+
+
 if __name__ == "__main__":
     """
     Command line handling
     """
-    test_6()
+    test_9()

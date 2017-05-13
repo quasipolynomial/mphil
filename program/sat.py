@@ -21,118 +21,140 @@ class Sat(object):
         """
         Generate instances by searching through combinations of n and m
         Save these results as files
+        
+        - Errors will occur if save_results folder is not unique (new)
         :param kwargs: 
         :return: Results of time taken to search
         """
-        # init
+        # Init
         fh = FileHandler()
         ph = ProcessHandler()
-        results = [['key', 'n', 'm', 'tries', 'vTime']]
-        systems = []
+        all_results = [['key', 'n', 'm', 'tries', 'vTime']]
+        all_systems = []
 
-        # params
+        # Looping params
         step = kwargs.get("step", 1)
-        max_tries = kwargs.get("max_tries", 10)
+        max_tries = kwargs.get("max_tries", 30)
         min_m = kwargs.get("min_m", 4)
         n = kwargs.get("n", 4)
         max_n = kwargs.get("max_n", 100)
         max_m = kwargs.get("max_m", 100)
-        save_dir = "./../assets/sat_run/{0}-n-{1}_{2}-m-{3}_step-{4}".format(n, max_n, min_m, max_m, step)
-        save_system_location = save_dir + "/systems"
-        save_results_location = save_dir + "/results"
-        save_systems = kwargs.get("save_systems", False)
-        save_results = kwargs.get("save_results", False)
         bound = kwargs.get("bound", False)
         limit = kwargs.get("limit", False)
         threshold_search = kwargs.get("threshold_search", False)
 
-        # Prep folder
-        fh.makedir(save_dir)
+        # Additional params
+        save_results_dir = "./../assets/sat_run/{0}-n-{1}_{2}-m-{3}_step-{4}".format(n, max_n, min_m, max_m, step)
+        save_results = kwargs.get("save_results", False)
+        save_systems = kwargs.get("save_systems", False)
+        gi = kwargs.get("gi", False)
 
-        while n < max_n:
-            m = min_m
-            n += step
+        # Prep results folder
+        if save_results or save_systems or gi:
+            save_results_dir = fh.makedir(save_results_dir)
+            save_results_location = save_results_dir + "/results"
+            save_systems_location = save_results_dir + "/systems/"
+            save_constructions_location = save_results_dir + "/constructions/"
+            fh.makedir(save_systems_location)
+            fh.makedir(save_constructions_location)
+
+        # Loop n value
+        while n <= max_n:
+            # Init loop
             tries = 0
             found = 0
             smallest_m_found = False
-            result = []
-            system = []
+            n_results = []
+            n_systems = []
 
-            while m < max_m:
-                # Handle iterations
-                m += step
-                if m < n:
-                    m = n
-                elif threshold_search and m == n and limit:
-                    m = int((2 * n) - (0.5 * (limit * step)))
-                if 4 < m / n or (found and found == limit):
+            # Prepare m value
+            if threshold_search and limit:
+                # Searching along the threshold
+                # m = 1/2 n
+                m = int((2 * n) - (0.5 * (limit * step)))
+            elif min_m < n:
+                # If m is smaller than n, then bring m up to speed
+                m = n
+            else:
+                m = min_m
+
+            # Loop m value
+            while m <= max_m:
+                # Handle Iterators
+                if max_tries == tries:
+                    # Failed to find and tried too many times
+                    print "Skipping: {0} {1}".format(n, m)
+                    tries = 0
+                    all_results.append([key, n, m, tries, -1, -1])
+                    n_results.append([key, n, m, tries, -1, -1])
+                    m += step
+                    continue
+                elif 4 < m / n or (found and found == limit):
+                    # Do not search for m > 4n or continue to next m if adequate systems are found
                     break
 
+                # Generate random system and record time taken to find
                 key = `n` + ':' + `m`
                 validation_start = timeit.default_timer()
-                generate_time, eq = ph.run_function_timed(self.generate_rand_unique_system, (n, m), return_args=True)
+                generate_time, system = ph.run_function_timed(self.generate_rand_system, (n, m),
+                                                              return_args=True)
 
-                # Found unique system
-                if eq:
-                    # Update params
+                # Validate system
+                if self.is_system_uniquely_satisfiable(system, n) \
+                        and ((gi and self.is_system_eligble(n, m, system, gi, save_results_dir)) or not gi):
+
+                    # Found unique system
+                    print "Found: {0} {1}".format(n, m)
+                    # Record times
+                    validation_time = timeit.default_timer() - validation_start
+                    all_results.append([key, n, m, tries, validation_time, generate_time])
+                    n_results.append([key, n, m, tries, validation_time, generate_time])
+                    all_systems.append([key, n, m, system])
+                    n_systems.append([key, n, m, system])
+
+                    # Update iterators
                     tries = 0
                     found += 1
-
-                    # Update the lower bound
                     if bound and not smallest_m_found:
+                        # Update the lower bound
                         min_m = m - step
                         smallest_m_found = True
-
-                    # Record times
-                    print "Found: ", n, m
-                    validation_time = timeit.default_timer() - validation_start
-                    results.append([key, n, m, tries, validation_time, generate_time])
-                    result.append([key, n, m, tries, validation_time, generate_time])
-
-                    # Save data
-                    if save_systems:
-                        systems.append([key, n, m, eq])
-                        system.append([key, n, m, eq])
-                        self.save_system(n, m, eq)
-
-                # Failed to find and tried too many times
-                elif max_tries == tries:
-                    print "Skipping: ", n, m
-                    tries = 0
-                    results.append([key, n, m, tries, -1, -1])
-                    result.append([key, n, m, tries, -1, -1])
-                    continue
-
-                # Failed to find, try again
                 else:
-                    # print 'Couldnt find for ' + `m` + ' Misses ' + `tries`
-                    # print n, "-", m, "- missing"
+                    # Failed to find, try again
+                    # print 'Couldnt find for {0} {1} Misses {2}'.format(n, m, tries)
                     tries += 1
                     m -= step
 
-            if save_systems:
-                print "Saving systems..."
-                save_systems_time = ph.run_function_timed(fh.update_file, (save_system_location, system))
-                print "Time taken: ", save_systems_time
+                # Increment m
+                m += step
+
+            # Save search information
             if save_results:
-                print "Saving results..."
-                save_results_time = ph.run_function_timed(fh.update_file, (save_results_location, result))
-                print "Time taken: ", save_results_time
-        return results
+                self.save_results(n_results, save_results_location)
+            if save_systems:
+                self.save_results_systems(n_systems, save_systems_location)
+
+            # Increment n
+            n += step
+
+        return all_results, all_systems
 
     def generate_rand_system(self, n, m):
         """
         Generates a random homogenous system
         Try n times to pull a unique random set of three variables from the pool.
+        - I.e. don't pick the same clause twice.
         :param n: 
         :param m: 
         :return: A 2d array of systems
         """
+        # Init
         pool = range(1, n + 1)
         system = []
         tries = 3
         i = 0
 
+        # Build an array of unique arrays as a system
         while i < m:
             clause = random.sample(pool, 3)
             clause.sort()
@@ -147,30 +169,6 @@ class Sat(object):
 
         return system
 
-    def generate_rand_unique_system(self, n, m):
-        """
-        Generates a random homogenous system that is uniquely satisfiable
-        First generates a system and then checks if uniquely satisfiable
-        Try n times to generate system
-        :param n: 
-        :param m: 
-        :return: A 2d array of systems
-        """
-        tries = 3
-
-        while True:
-            system = self.generate_rand_system(n, m)
-
-            if tries == 0:
-                return False
-            elif system:
-                if self.is_system_uniquely_satisfiable(system, n):
-                    return system
-                else:
-                    tries -= 1
-            else:
-                tries -= 1
-
     def generate_systems_fix_n(self):
         """
         Generate a system forcing n to stay static and allow m to vary
@@ -183,11 +181,10 @@ class Sat(object):
         tries = 10
 
         for m in range(555, max_m):
-            eq = sat.generate_rand_unique_system(n, m)
-            if eq:
+            system = sat.generate_rand_system(n, m)
+            if self.is_system_uniquely_satisfiable(system, n):
                 tries = 10
                 print 'Found: ' + `m`
-                # print eq
             else:
                 print 'Couldnt find for ' + `m`
                 tries -= 1
@@ -209,8 +206,8 @@ class Sat(object):
         misses = 0
         while m < max_m:
             m += 1
-            eq = sat.generate_rand_unique_system(n, m)
-            if eq:
+            system = sat.generate_rand_system(n, m)
+            if self.is_system_uniquely_satisfiable(system, n):
                 misses = 0
                 print "Found: ", m
                 # print eq
@@ -226,6 +223,9 @@ class Sat(object):
         :param n: 
         :return: 
         """
+        if not system:
+            return False
+
         # Prep solver
         solver = Solver()
         for clause in system:
@@ -237,6 +237,45 @@ class Sat(object):
         sat, sol = solver.solve()
 
         return not sat
+
+    def is_system_eligble(self, n, m, system, gi, location):
+        """
+        Check if graph meets the construction criteria
+        - k consistent 
+        - No automorphisms
+        :param n: 
+        :param m: 
+        :param gi: 
+        :param system: 
+        :return: 
+        """
+        # Init
+        ph = ProcessHandler()
+        graph_path = "{0}/constructions/".format(location)
+        system_path = "{0}/constructions/{1}_{2}".format(location, n, m)
+        construct_a_location = "{0}{1}_{2}_A.dre".format(graph_path, n, m)
+
+        # Save system temporarily
+        self.save_system(n, m, system, graph_path)
+        G = self.convert_system_to_graph(n, m, system)
+        gi.convert_graph_to_traces(n, m, G, "A", graph_path)  # First construction
+
+        # Check for k-local consistency
+        if not self.is_k_consistent(n, m, system):
+            # print "Not K consistent"
+            ph.run_command("rm '{0}'".format(system_path))
+            return False
+        elif not gi.graph_has_automorphisms(construct_a_location):
+            # print "No Automorphisms. Construct."
+            G = self.convert_system_to_construction(n, m, system)
+            gi.convert_graph_to_traces(n, m, G, "B", graph_path)  # Second construction
+            ph.run_command("rm '{0}'".format(system_path))
+            return True
+        else:
+            # print "Automorphisms. Remove."
+            ph.run_command("rm '{0}'".format(construct_a_location))  # Remove unwanted graph
+            ph.run_command("rm '{0}'".format(system_path))  # Remove unwanted system
+            return False
 
     def find_equations(self, n, m):
         """
@@ -404,7 +443,7 @@ class Sat(object):
                     variables.append(variable)
         return variables
 
-    def save_systems(self, systems):
+    def save_systems(self, systems, location):
         """
         Save a set of systems of equations to a file
         :param systems: 
@@ -412,19 +451,40 @@ class Sat(object):
         """
         for system in systems:
             # n, m, system
-            self.save_system(system[1], system[2], system[3])
+            self.save_system(system[1], system[2], system[3], location)
 
-    def save_system(self, n, m, system):
+    def save_system(self, n, m, system, location):
         """
         Save a system of equations to file
         :param n: 
         :param m: 
         :param system: 
+        :param location: 
         :return: 
         """
         fh = FileHandler()
-        path = "./../assets/systems/{0}_{1}".format(n, m)
+        path = location + "{0}_{1}".format(n, m)
         fh.write_to_file(path, system)
+
+    def save_results(self, results, location):
+        """
+        Save a set of results
+        :param location: 
+        :param results: 
+        :return: 
+        """
+        fh = FileHandler()
+        ph = ProcessHandler()
+        print "Saving results..."
+        save_results_time = ph.run_function_timed(fh.update_file, (location, results))
+        print "Time taken: ", save_results_time
+
+    def save_results_systems(self, systems, location):
+        fh = FileHandler()
+        ph = ProcessHandler()
+        print "Saving systems..."
+        save_systems_time = ph.run_function_timed(self.save_systems, (systems, location))
+        print "Time taken: ", save_systems_time
 
     def load_results(self):
         """

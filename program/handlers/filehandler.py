@@ -8,6 +8,7 @@ import os
 import os.path
 import operator
 import json
+import datetime
 from processhandler import ProcessHandler
 
 
@@ -115,6 +116,11 @@ class FileHandler(object):
         """
         if not os.path.exists(path):
             os.makedirs(path)
+            return path
+        else:
+            path = "{0}_{1}".format(path, datetime.datetime.now())
+            os.makedirs(path)
+            return path
 
     def has_space(self, path):
         """
