@@ -14,6 +14,7 @@ import timeit
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
+import itertools
 
 
 class Sat(object):
@@ -316,7 +317,7 @@ class Sat(object):
         :return: 
         """
         clauses = self.find_clauses(n)
-        systems = self.find_systems(clauses, n, m)
+        systems = self.find_systems(clauses, [], n, m, 0, find_one=False)
         return systems
 
     def find_clauses(self, n):
@@ -326,21 +327,10 @@ class Sat(object):
         :return: A 2d array of all combinations of 
         """
         pool = range(1, n + 1)
-        clauses = []
-        for x in pool:
-            for y in pool:
-                for z in pool:
-                    if x == y or x == z or y == z:
-                        continue
-
-                    clause = [x, y, z]
-                    clause.sort()
-
-                    if clause not in clauses:
-                        clauses.append(clause)
+        clauses = list(itertools.combinations(pool, 3))
         return clauses
 
-    def find_systems(self, clauses, system, n, m, depth):
+    def find_systems(self, clauses, system, n, m, depth, **kwargs):
         """
         Find all systems using recursive method
         :param clauses: 
@@ -384,6 +374,8 @@ class Sat(object):
                 # Check if it is a uniquely satisfiable instance or is it a return call
                 if isinstance(unique_system, bool) and unique_system:
                     systems.append(system_temp)
+                    if kwargs.get("find_one", False):
+                        return systems
                 elif unique_system:
                     systems = systems + unique_system
 
