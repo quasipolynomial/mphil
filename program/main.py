@@ -370,10 +370,31 @@ def test_12():
                       gi=Gi())
 
 
+def test_13():
+    """
+    Find strongly k 
+    :return: 
+    """
+    main = Main()
+    for i in range(0, 30):
+        main.generate_n_m(n=10,
+                          min_m=10,
+                          max_n=100,
+                          max_m=300,
+                          step=10,
+                          save_results=True,
+                          save_systems=True,
+                          upper_bound=3,
+                          lower_bound=1,
+                          max_tries=30,
+                          update_strongly_k=True,
+                          gi=Gi())
+
+
 if __name__ == "__main__":
     """
     Command line handling
     """
     # test_11()
     # test_12()
-    test_6()
+    test_13()
