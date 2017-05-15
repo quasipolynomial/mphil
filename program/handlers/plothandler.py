@@ -211,13 +211,16 @@ class PlotHandler(object):
         :param data: 
         :return: 
         """
+        # Time off - on (positive values are good)
         x = []
         y = []
         z = []
         for r in data:
             x.append(int(r[1]))
             y.append(int(r[2]))
-            z.append(float(r[4]))
+            # z.append(float(r[3])) # off
+            # z.append(float(r[4])) # on
+            z.append(float(r[5])) # off - on
 
         title = 'Sat run 0-n-10000_0-m-10000_step-100'
         self.plot_heatmap_2d(title,
@@ -227,3 +230,4 @@ class PlotHandler(object):
                              x_label="N Values",
                              y_label="M Values")
         self.plot_graph_3d(title, x, y, z)
+
