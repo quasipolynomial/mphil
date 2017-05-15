@@ -103,7 +103,7 @@ class Main(object):
         results = sat.load_results()
         ph.plot_gauss_results(results)
 
-    def convert_systems(self):
+    def convert_systems(self, **kwargs):
         """
         Convert found systems into graphs and run them through Traces
         :return: 
@@ -114,6 +114,7 @@ class Main(object):
         ph = ProcessHandler()
         fh = FileHandler()
         paths = ph.run_command("ls -v ./../assets/systems_to_convert/")
+        validate = kwargs.get("validate", False)
 
         # Iterate systems
         for path in paths:
@@ -131,38 +132,51 @@ class Main(object):
             # Load system
             system = fh.read_from_file(system_path)
 
-            # Check for k-local consistency
-            if not sat.is_k_consistent(n, m, system):
-                print "\t Not K consistent system. Removing and skipping."
-                fh.delete_file(system_path)
-                continue
-            else:
-                print "\t K consistent system. Constructing A."
+            if validate:
+                # Check for k-local consistency
+                if not sat.is_k_consistent(n, m, system):
+                    print "\t Not K consistent system. Removing and skipping."
+                    fh.delete_file(system_path)
+                    continue
+                else:
+                    print "\t K consistent system. Constructing A."
 
-            # Convert system into graphs and check for automorphisms
-            G = sat.convert_system_to_graph(n, m, system)
-            gi.convert_graph_to_traces(n, m, G, "A", "./../assets/construction/")  # First construction
-            if not gi.graph_has_automorphisms(graph_path):
-                print "\t No Automorphisms. Constructing B."
+                # Convert system into graphs and check for automorphisms
+                G = sat.convert_system_to_graph(n, m, system)
+                gi.convert_graph_to_traces(n, m, G, "A", "./../assets/construction/")  # First construction
+                if not gi.graph_has_automorphisms(graph_path):
+                    print "\t No Automorphisms. Constructing B."
+                    G = sat.convert_system_to_construction(n, m, system)
+                    gi.convert_graph_to_traces(n, m, G, "B", "./../assets/construction/")  # Second construction
+                    fh.delete_file(graph_path)
+                else:
+                    print "\t Automorphisms. Removing and skipping."
+                    fh.delete_file(graph_path)  # Remove unwanted graph
+                    fh.delete_file(system_path)  # Remove unwanted system
+            else:
                 G = sat.convert_system_to_construction(n, m, system)
-                gi.convert_graph_to_traces(n, m, G, "B", "./../assets/construction/")  # Second construction
-            else:
-                print "\t Automorphisms. Removing and skipping."
-                fh.delete_file(graph_path)  # Remove unwanted graph
-                fh.delete_file(system_path)  # Remove unwanted system
+                gi.convert_graph_to_traces(n, m, G, "B", "./../assets/construction/")
 
-    def time_constructions(self):
+    def time_constructions(self, **kwargs):
         """
         Run new constructions through Traces
         :return: 
         """
         gi = Gi()
         ph = PlotHandler()
-        graphs = {
-            "construction_custom": gi.load_graphs()["construction_custom"]
-        }
-        results = gi.run_graphs(graphs)
+
+        if kwargs.get("load_results", False):
+            results = {
+                "construction_custom": gi.load_results()["construction_custom"]
+            }
+        else:
+            graphs = {
+                "construction_custom": gi.load_graphs()["construction_custom"]
+            }
+            results = gi.run_graphs(graphs, save=True)
+
         ph.plot_gi_results(results)
+        ph.plot_construction_results(results)
 
 
 # Tests
@@ -255,8 +269,8 @@ def test_6():
     :return: 
     """
     main = Main()
-    main.convert_systems()
-    # main.time_constructions()
+    # main.convert_systems(validate=False)
+    main.time_constructions()
 
 
 def test_7():
@@ -373,6 +387,10 @@ def test_12():
 def test_13():
     """
     Find strongly k 
+     4 - 10
+     10 - 100
+     100 - 1000
+     1000 - 10000
     :return: 
     """
     main = Main()
@@ -391,10 +409,67 @@ def test_13():
                           gi=Gi())
 
 
+def test_14():
+    """
+    Recursive search
+    Warning - may crash
+    :return: 
+    """
+    sat = Sat()
+    n = 10
+    m = 10
+    clauses = sat.find_clauses(n)
+    systems = sat.find_systems(clauses, [], n, m, 0, find_one=True)
+    return systems
+
+
+def test_15():
+    """
+    Demonstrating difficulty in finding n = m
+    :return: 
+    """
+    main = Main()
+    main.generate_n_m(n=100,
+                      min_m=100,
+                      max_n=500,
+                      max_m=1000,
+                      step=100,
+                      save_results=True,
+                      save_systems=True,
+                      upper_bound=1,
+                      lower_bound=1,
+                      max_tries=1000,
+                      update_strongly_k=True,
+                      gi=Gi())
+
+
+def test_16():
+    """
+    Demonstrating difficulty in finding 2n = m
+    :return: 
+    """
+    main = Main()
+    main.generate_n_m(n=10,
+                      min_m=10,
+                      max_n=100,
+                      max_m=100,
+                      step=10,
+                      save_results=True,
+                      save_systems=True,
+                      upper_bound=1,
+                      lower_bound=1,
+                      max_tries=1000,
+                      update_strongly_k=True,
+                      gi=Gi())
+
+
 if __name__ == "__main__":
     """
     Command line handling
     """
     # test_11()
     # test_12()
-    test_13()
+    # test_13()
+    test_6()
+    # test_5()
+    # test_16()
