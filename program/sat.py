@@ -291,14 +291,14 @@ class Sat(object):
 
         fh.write_to_file_simple(temp_path_a, self.prepare_cryptominisat_system(n, m, system))
         fh.write_to_file_simple(temp_path_b, self.prepare_cryptominisat_system(n, m, system_old))
-        time_a = self.get_gauss_on_time(temp_path_a)
-        time_b = self.get_gauss_on_time(temp_path_b)
+        diff_a = self.get_gauss_off_time(temp_path_a) - self.get_gauss_on_time(temp_path_a)
+        diff_b = self.get_gauss_off_time(temp_path_b) - self.get_gauss_on_time(temp_path_b)
 
-        if time_a > time_b:
-            print "Slower {0}".format(time_a - time_b)
-            pass
+        if diff_a > diff_b:
+            print "Slower {0}".format(diff_a - diff_b)
+        pass
 
-        return time_a > time_b
+        return diff_a > diff_b
 
     def update_strongly_k(self, n, m, system):
         ph = ProcessHandler()
@@ -641,6 +641,8 @@ class Sat(object):
         on vs off
         faster on versus off
         
+        Looking for systems that are FASTER (take less time) with GAUSS ON than GAUSS OFF
+        
         :param n: 
         :param m: 
         :param system: 
@@ -654,6 +656,7 @@ class Sat(object):
 
         # If Gauss On - Gauss Off > Threshold (sec)
         # threshold = time_b - time_a > float(1)
+        # I.e. time_off - time_on > 0
         threshold = time_on < time_off  # No threshold determined
 
         return threshold
@@ -667,10 +670,10 @@ class Sat(object):
         fh.write_to_file_simple(path, input)
 
         # run gauss off
-        time_off = self.get_gauss_on_time(path)
+        time_off = self.get_gauss_off_time(path)
 
         # run gauss on
-        time_on = self.get_gauss_off_time(path)
+        time_on = self.get_gauss_on_time(path)
 
         return time_off, time_on
 
