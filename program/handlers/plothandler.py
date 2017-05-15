@@ -178,6 +178,20 @@ class PlotHandler(object):
 
             self.plot_plot_2d(graph, x_axis, y_axis, **kwargs)
 
+    def plot_construction_results(self, results):
+        graph = "construction_custom"
+        x = []
+        y = []
+        z = []
+        for result in results[graph]:
+            n = int(result['name'].split("_")[0])
+            m = int(result['name'].split("_")[1])
+            t = float(result["time"])
+            x.append(n)
+            y.append(m)
+            z.append(t)
+        self.plot_graph_3d("Should work", x, y, z)
+
     def plot_sat_results(self, data):
         """
         Handler for plotting results from generating systems
@@ -218,9 +232,9 @@ class PlotHandler(object):
         for r in data:
             x.append(int(r[1]))
             y.append(int(r[2]))
-            # z.append(float(r[3])) # off
+            z.append(float(r[3]))  # off
             # z.append(float(r[4])) # on
-            z.append(float(r[5])) # off - on
+            # z.append(float(r[5])) # off - on
 
         title = 'Sat run 0-n-10000_0-m-10000_step-100'
         self.plot_heatmap_2d(title,
@@ -230,4 +244,3 @@ class PlotHandler(object):
                              x_label="N Values",
                              y_label="M Values")
         self.plot_graph_3d(title, x, y, z)
-

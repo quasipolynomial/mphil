@@ -23,7 +23,6 @@ class Sat(object):
         Generate instances by searching through combinations of n and m
         Save these results as files
         
-        - Errors will occur if save_results folder is not unique (new)
         :param kwargs: 
         :return: Results of time taken to search
         """
@@ -237,6 +236,8 @@ class Sat(object):
         solver.add_clause(range(1, n + 1))
 
         sat, sol = solver.solve()
+
+        # print "Found system is {0}".format(sat)
 
         return not sat
 
