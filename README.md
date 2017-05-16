@@ -1,27 +1,51 @@
-# Trello
-https://trello.com/b/vjHrJ35r/mphil
+# MPhil
+This package provides logic in generating graphs from xor systems to be executed on Traces.
 
-# How to use dretodot
-[nauty installation]./dretodot ./graphs/graph.dre ./out.dot
+## Requirements
+### OS
+UNIX-like OS, which tends to POSIX api.
 
-# How to use nauty - see dreadnaut pdf
-dreadnaut 
+
+### Packages
+```
+Traces
+Cryptominisat
 sudo apt install nauty
+sudo apt install python-tk
+```
 
-# How to use graphviz
+### Python 2.7
+Packages:
+```
+cryptominisat
+numpy
+matplotlib
+...
+```
+
+## Building
+...
+
+
+## Additional Information
+### How to use dretodot
+```
+[nauty installation]./dretodot ./graphs/graph.dre ./out.dot
+```
+
+### How to use nauty
+See Pdf
+
+### How to use graphviz
 man graphviz
 dotty ...
 
-# How to use cryptominisat
+### How to use cryptominisat
+After installation
+```
 cryptominisat_simple -verb=0 [filename]
-
-# Install
+```
 https://github.com/msoos/cryptominisat.git
 
-# Python libaries pip install
-numpy
-cryptominisat
-matplotlib
-
-# apt
-python-tk
+### Todo
+Trello: https://trello.com/b/vjHrJ35r/mphil
