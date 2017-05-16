@@ -160,3 +160,11 @@ class FileHandler(object):
         ph = ProcessHandler()
         if self.is_file(path):
             ph.run_command("rm '{0}'".format(path))
+
+    def move_file(self, path_old, path_new):
+        ph = ProcessHandler()
+        ph.run_command("mv '{0}' '{1}'".format(path_old, path_new))
+
+    def copy_file(self, path_old, path_new):
+        ph = ProcessHandler()
+        ph.run_command("cp '{0}' '{1}'".format(path_old, path_new))
