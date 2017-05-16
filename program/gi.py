@@ -221,7 +221,12 @@ class Gi(object):
         return False if stdout.split(";")[2].split()[0] == '0' else True
 
     def is_graph_slower(self, path_a, path_b):
-
+        """
+        Determine if a graph at a saved location runs slower than another
+        :param path_a: 
+        :param path_b: 
+        :return: 
+        """
         ph = ProcessHandler()
         process = ph.open_process("dreadnaut")
         time_a, (stdout, stderr) = ph.run_function_timed(process.communicate,

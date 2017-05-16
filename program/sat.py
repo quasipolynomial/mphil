@@ -8,8 +8,6 @@ import random
 from pycryptosat import Solver
 from handlers.filehandler import FileHandler
 from handlers.processhandler import ProcessHandler
-import operator
-from handlers.plothandler import PlotHandler
 import timeit
 import numpy as np
 import networkx as nx
@@ -282,6 +280,13 @@ class Sat(object):
             return False
 
     def is_system_slower(self, n, m, system):
+        """
+        Determine if a given system is slower than the current slowest system stored in "systems_strongly_k"
+        :param n: 
+        :param m: 
+        :param system: 
+        :return: 
+        """
         fh = FileHandler()
         path = "./../assets/systems_strongly_k/{0}_{1}".format(n, m)
         temp_path_a = "./../assets/temp/temp_a"
@@ -303,6 +308,13 @@ class Sat(object):
         return diff_a > diff_b
 
     def update_strongly_k(self, n, m, system):
+        """
+        Update the folder of stored systems which are a catalogue of slow systems
+        :param n: 
+        :param m: 
+        :param system: 
+        :return: 
+        """
         ph = ProcessHandler()
         fh = FileHandler()
         path = "./../assets/systems_strongly_k/{0}_{1}".format(n, m)
@@ -655,6 +667,13 @@ class Sat(object):
         return threshold
 
     def get_gauss_times(self, n, m, system):
+        """
+        Retrieve the validation times (unique satisfiability) on a given system executed on a Sat solver
+        :param n: 
+        :param m: 
+        :param system: 
+        :return: 
+        """
         path = "./../assets/temp/temp_gauss_check"
         fh = FileHandler()
 
@@ -671,12 +690,24 @@ class Sat(object):
         return time_off, time_on
 
     def get_gauss_off_time(self, path):
+        """
+        Retrieve time taken to execute with gauss off
+        = Helper
+        :param path: 
+        :return: 
+        """
         ph = ProcessHandler()
         cmd = "./../assets/sat/cryptominisat/build/cryptominisat5 --verb=0 {0}".format(path)
         time, out = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)
         return time
 
     def get_gauss_on_time(self, path):
+        """
+        Retrieve time taken to execute with gauss on
+        - Helper
+        :param path: 
+        :return: 
+        """
         ph = ProcessHandler()
         cmd = "./../assets/sat/cryptominisat/build_gauss/cryptominisat5 --verb=0 {0}".format(path)
         time, out = ph.run_function_timed(ph.run_command, (cmd,), return_args=True)

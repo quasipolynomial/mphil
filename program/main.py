@@ -6,36 +6,10 @@ Main logic
 
 from sat import Sat
 from gi import Gi
-import signal
-import timeit
-import pprint
-import random
-from pycryptosat import Solver
 from handlers.filehandler import FileHandler
 from handlers.plothandler import PlotHandler
 from handlers.processhandler import ProcessHandler
 
-
-# DONE Todo search for smaller range
-# DONE Todo find more instances
-# DONE Todo check for k-local consistency
-# DONE Todo Build graphs
-#   2 kinds of graphs
-#   convert
-#   check if has any auto
-#   auto, k locally, uniquely sat,
-# DONE Todo RUN Through traces and check if graph has nothing other than trivial automorphisms
-# DONE Todo Run on two different builds
-# DONE Todo Save each system to file
-# DONE Todo extending graphs (random ones)
-# DONE Todo add timeouts to graphs
-# DONE Todo Rerun and find times
-# DONE Todo random graphs
-# DONE Todo subsecond times
-# DONE Todo gauss elim
-# DONE TODO Run sat
-# DONE TODO Run graphs
-# DONE TODO Make graphs from output
 
 class Main(object):
     def generate_systems(self, **kwargs):
@@ -82,8 +56,8 @@ class Main(object):
         ph = PlotHandler()
         gi = Gi()
         results = gi.load_results()
-        ph.plot_gi_results(results, **kwargs)
-        ph.plot_graph_comparison(results)
+        ph.plot_graphs_results(results, **kwargs)
+        ph.plot_graphs_comparison(results)
 
     def execute_sat_solver(self):
         """
@@ -101,7 +75,7 @@ class Main(object):
         sat = Sat()
         ph = PlotHandler()
         results = sat.load_results()
-        ph.plot_gauss_results(results)
+        ph.plot_k_consistency_check(results)
 
     def convert_systems_to_constructions(self, **kwargs):
         """
@@ -167,7 +141,7 @@ class Main(object):
         graphs = {
             "con_all": gi.load_graphs()["con_all"]
         }
-        results = gi.run_graphs(graphs, save=True, timeout=3600)
+        results = gi.run_graphs(graphs, save=True, timeout=1)
 
         # Init
         con_4_10 = []
@@ -245,7 +219,7 @@ class Main(object):
             "con_3n": gi.load_results()["con_3n"],
             "con_sml": gi.load_results()["con_sml"]
         }
-        ph.plot_gi_results(results)
+        ph.plot_graphs_results(results)
         ph.plot_construction_results(results)
 
 
@@ -342,6 +316,7 @@ def test_6():
     # main.convert_systems_to_constructions(validate=False)
     main.execute_constructions()
     # main.plot_constructions_results()
+
 
 def test_7():
     """

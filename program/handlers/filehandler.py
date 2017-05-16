@@ -26,6 +26,7 @@ class FileHandler(object):
     def write_to_file_simple(self, path, data):
         """
         Write to file using raw strings
+        - Print line by line using new line separators
         :param path: 
         :param data: 
         :return: 
@@ -76,6 +77,11 @@ class FileHandler(object):
         return data
 
     def read_from_file_simple(self, path):
+        """
+        Read line by line from a file
+        :param path: 
+        :return: 
+        """
         with open(path) as f:
             data = f.readlines()
         data = [x.strip() for x in data]
@@ -154,17 +160,39 @@ class FileHandler(object):
         return data_b
 
     def is_file(self, path):
+        """
+        Determine if file/folder exists
+        :param path: 
+        :return: 
+        """
         return os.path.exists(path)
 
     def delete_file(self, path):
+        """
+        Delete a file
+        :param path: 
+        :return: 
+        """
         ph = ProcessHandler()
         if self.is_file(path):
             ph.run_command("rm '{0}'".format(path))
 
     def move_file(self, path_old, path_new):
+        """
+        Move a file
+        :param path_old: 
+        :param path_new: 
+        :return: 
+        """
         ph = ProcessHandler()
         ph.run_command("mv '{0}' '{1}'".format(path_old, path_new))
 
     def copy_file(self, path_old, path_new):
+        """
+        Copy a file
+        :param path_old: 
+        :param path_new: 
+        :return: 
+        """
         ph = ProcessHandler()
         ph.run_command("cp '{0}' '{1}'".format(path_old, path_new))
