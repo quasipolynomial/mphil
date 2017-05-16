@@ -38,18 +38,17 @@ from handlers.processhandler import ProcessHandler
 # DONE TODO Make graphs from output
 
 class Main(object):
-    def generate_n_m(self, **kwargs):
+    def generate_systems(self, **kwargs):
         """
         Generate instances
         :param kwargs: 
         :return: 
         """
         sat = Sat()
-        ph = PlotHandler()
-        fh = FileHandler()
         results, systems = sat.generate_systems(**kwargs)
+        return results, systems
 
-    def plot_n_m_results(self, filename, **kwargs):
+    def plot_generate_systems_results(self, filename, **kwargs):
         """
         Plot time taken to generate instances
         :param filename: 
@@ -61,7 +60,7 @@ class Main(object):
         data = fh.read_from_file(filename, kwargs)
         ph.plot_sat_results(data)
 
-    def generate_graphs(self, **kwargs):
+    def execute_graphs(self, **kwargs):
         """
         Run graphs through Traces
         :param kwargs: 
@@ -86,7 +85,7 @@ class Main(object):
         ph.plot_gi_results(results, **kwargs)
         ph.plot_graph_comparison(results)
 
-    def timed_n_m(self):
+    def execute_sat_solver(self):
         """
         Time execution time of running instances through Sat Solver
         :return: 
@@ -94,7 +93,7 @@ class Main(object):
         sat = Sat()
         sat.run_solver()
 
-    def plot_timed_n_m(self):
+    def plot_sat_solver_results(self):
         """
         Plot execution time of running instances through Sat Solver
         :return: 
@@ -104,7 +103,7 @@ class Main(object):
         results = sat.load_results()
         ph.plot_gauss_results(results)
 
-    def convert_systems(self, **kwargs):
+    def convert_systems_to_constructions(self, **kwargs):
         """
         Convert found systems into graphs and run them through Traces
         :return: 
@@ -158,24 +157,94 @@ class Main(object):
                 G = sat.convert_system_to_construction(n, m, system)
                 gi.convert_graph_to_traces(n, m, G, "B", "./../assets/construction/")
 
-    def time_constructions(self, **kwargs):
+    def execute_constructions(self):
         """
         Run new constructions through Traces
         :return: 
         """
         gi = Gi()
+        fh = FileHandler()
+        graphs = {
+            "con_all": gi.load_graphs()["con_all"]
+        }
+        results = gi.run_graphs(graphs, save=True, timeout=1)
+
+        # Init
+        con_4_10 = []
+        con_10_100 = []
+        con_100_1000 = []
+        con_n = []
+        con_2n = []
+        con_3n = []
+        con_sml = []
+        found = []
+
+        # Extract packages
+        for result in results["con_all"]:
+            n = int(result["name"].split("_")[0])
+            m = int(result["name"].split("_")[1])
+            if n in range(4, 10, 1):
+                con_4_10.append(result)
+            if n in range(10, 100, 10):
+                con_10_100.append(result)
+            if n in range(100, 1000, 100):
+                con_100_1000.append(result)
+            if n == m:
+                con_n.append(result)
+            if 2 * n == m:
+                con_2n.append(result)
+            if 3 * n == m:
+                con_3n.append(result)
+
+        # Extract smallest n : m ratio
+        for i in results["con_all"]:
+            n = int(i["name"].split("_")[0])
+            m = int(i["name"].split("_")[1])
+
+            if n in found:
+                continue
+
+            for j in results["con_all"]:
+                n_1 = int(j["name"].split("_")[0])
+                m_1 = int(j["name"].split("_")[1])
+                if n == n_1 and m_1 <= m:
+                    con_sml.append(j)
+                    found.append(n)
+
+        # Produce packages
+        packages = {
+            "con_4_10": con_4_10,
+            "con_10_100": con_10_100,
+            "con_100_1000": con_100_1000,
+            "con_n": con_n,
+            "con_2n": con_2n,
+            "con_3n": con_3n,
+            "con_sml": con_sml
+        }
+
+        # Save packages
+        for package in packages:
+            fh.write_to_file("./../assets/graphs_run/{0}.txt".format(package), packages[package])
+            fh.makedir("./../assets/graphs/{0}".format(package))
+            for instance in packages[package]:
+                name = instance["name"]
+                fh.copy_file("./../assets/graphs/con_all/{0}".format(name),
+                             "./../assets/graphs/{0}/{1}".format(package, name))
+
+        return results
+
+    def plot_constructions_results(self):
         ph = PlotHandler()
-
-        if kwargs.get("load_results", False):
-            results = {
-                "construction_custom": gi.load_results()["construction_custom"]
-            }
-        else:
-            graphs = {
-                "construction_custom": gi.load_graphs()["construction_custom"]
-            }
-            results = gi.run_graphs(graphs, save=True)
-
+        gi = Gi()
+        results = {
+            "con_4_10": gi.load_results()["con_4_10"],
+            "con_10_100": gi.load_results()["con_10_100"],
+            "con_100_1000": gi.load_results()["con_100_1000"],
+            "con_n": gi.load_results()["con_n"],
+            "con_2n": gi.load_results()["con_2n"],
+            "con_3n": gi.load_results()["con_3n"],
+            "con_sml": gi.load_results()["con_sml"]
+        }
         ph.plot_gi_results(results)
         ph.plot_construction_results(results)
 
@@ -188,15 +257,15 @@ def test_1():
     :return: 
     """
     main = Main()
-    main.generate_n_m(n=4,
-                      min_m=4,
-                      max_n=100,
-                      max_m=100,
-                      step=1,
-                      save_results=False,
-                      save_systems=True,
-                      limit=False,
-                      max_tries=30)
+    main.generate_systems(n=4,
+                          min_m=4,
+                          max_n=100,
+                          max_m=100,
+                          step=1,
+                          save_results=False,
+                          save_systems=True,
+                          limit=False,
+                          max_tries=30)
 
 
 def test_2():
@@ -206,15 +275,15 @@ def test_2():
     :return: 
     """
     main = Main()
-    main.generate_n_m(n=100,
-                      min_m=100,
-                      max_n=1000,
-                      max_m=1000,
-                      step=10,
-                      save_results=False,
-                      save_systems=True,
-                      limit=False,
-                      max_tries=10)
+    main.generate_systems(n=100,
+                          min_m=100,
+                          max_n=1000,
+                          max_m=1000,
+                          step=10,
+                          save_results=False,
+                          save_systems=True,
+                          limit=False,
+                          max_tries=10)
 
 
 def test_3():
@@ -224,16 +293,16 @@ def test_3():
     :return: 
     """
     main = Main()
-    main.generate_n_m(n=1000,
-                      min_m=1000,
-                      max_n=10000,
-                      max_m=10000,
-                      step=100,
-                      save_results=True,
-                      save_systems=True,
-                      limit=10,
-                      efficient_search=True,
-                      max_tries=10)
+    main.generate_systems(n=1000,
+                          min_m=1000,
+                          max_n=10000,
+                          max_m=10000,
+                          step=100,
+                          save_results=True,
+                          save_systems=True,
+                          limit=10,
+                          efficient_search=True,
+                          max_tries=10)
 
 
 def test_4():
@@ -243,15 +312,15 @@ def test_4():
     :return: 
     """
     main = Main()
-    main.generate_n_m(n=10000,
-                      min_m=10000,
-                      max_n=50000,
-                      max_m=50000,
-                      step=1000,
-                      save_results=False,
-                      save_systems=True,
-                      limit=5,
-                      max_tries=5)
+    main.generate_systems(n=10000,
+                          min_m=10000,
+                          max_n=50000,
+                          max_m=50000,
+                          step=1000,
+                          save_results=False,
+                          save_systems=True,
+                          limit=5,
+                          max_tries=5)
 
 
 def test_5():
@@ -260,8 +329,8 @@ def test_5():
     :return: 
     """
     main = Main()
-    main.timed_n_m()
-    main.plot_timed_n_m()
+    main.execute_sat_solver()
+    main.plot_sat_solver_results()
 
 
 def test_6():
@@ -270,9 +339,9 @@ def test_6():
     :return: 
     """
     main = Main()
-    main.convert_systems(validate=False)
-    # main.time_constructions(load_results=True)
-
+    # main.convert_systems_to_constructions(validate=False)
+    main.execute_constructions()
+    # main.plot_constructions_results()
 
 def test_7():
     """
@@ -280,9 +349,9 @@ def test_7():
     :return: 
     """
     main = Main()
-    main.generate_graphs(outstanding=False,
-                         timeout=7200,
-                         save=True)
+    main.execute_graphs(outstanding=False,
+                        timeout=7200,
+                        save=True)
 
     # main.plot_graphs_results(save=True)
 
@@ -313,14 +382,14 @@ def test_9():
     :return: 
     """
     main = Main()
-    main.generate_n_m(n=4,
-                      min_m=4,
-                      max_n=100,
-                      max_m=100,
-                      step=10,
-                      save_results=True,
-                      save_systems=True,
-                      gi=Gi())
+    main.generate_systems(n=4,
+                          min_m=4,
+                          max_n=100,
+                          max_m=100,
+                          step=10,
+                          save_results=True,
+                          save_systems=True,
+                          gi=Gi())
 
 
 def test_10():
@@ -329,15 +398,15 @@ def test_10():
     :return: 
     """
     main = Main()
-    main.generate_n_m(n=1000,
-                      min_m=1000,
-                      max_n=10000,
-                      max_m=10000,
-                      step=100,
-                      save_results=True,
-                      save_systems=True,
-                      limit=10)
-    main.plot_n_m_results('./../assets/sat_run/0-n-10000_0-m-10000_step-100/results', aggregate=True)
+    main.generate_systems(n=1000,
+                          min_m=1000,
+                          max_n=10000,
+                          max_m=10000,
+                          step=100,
+                          save_results=True,
+                          save_systems=True,
+                          limit=10)
+    main.plot_generate_systems_results('./../assets/sat_run/0-n-10000_0-m-10000_step-100/results', aggregate=True)
 
 
 def test_11():
@@ -352,17 +421,17 @@ def test_11():
     :return: 
     """
     main = Main()
-    main.generate_n_m(n=1000,
-                      min_m=1000,
-                      max_n=10000,
-                      max_m=20000,
-                      step=1000,
-                      save_results=True,
-                      save_systems=True,
-                      upper_bound=2,
-                      lower_bound=1,
-                      max_tries=30,
-                      gi=Gi())
+    main.generate_systems(n=1000,
+                          min_m=1000,
+                          max_n=10000,
+                          max_m=20000,
+                          step=1000,
+                          save_results=True,
+                          save_systems=True,
+                          upper_bound=2,
+                          lower_bound=1,
+                          max_tries=30,
+                          gi=Gi())
 
 
 def test_12():
@@ -371,18 +440,18 @@ def test_12():
     :return: 
     """
     main = Main()
-    main.generate_n_m(n=10,
-                      min_m=10,
-                      max_n=100,
-                      max_m=200,
-                      step=10,
-                      save_results=True,
-                      save_systems=True,
-                      upper_bound=3,
-                      lower_bound=1,
-                      max_tries=30,
-                      update_strongly_k=True,
-                      gi=Gi())
+    main.generate_systems(n=10,
+                          min_m=10,
+                          max_n=100,
+                          max_m=200,
+                          step=10,
+                          save_results=True,
+                          save_systems=True,
+                          upper_bound=3,
+                          lower_bound=1,
+                          max_tries=30,
+                          update_strongly_k=True,
+                          gi=Gi())
 
 
 def test_13():
@@ -396,18 +465,18 @@ def test_13():
     """
     main = Main()
     for i in range(0, 30):
-        main.generate_n_m(n=10,
-                          min_m=10,
-                          max_n=100,
-                          max_m=300,
-                          step=10,
-                          save_results=True,
-                          save_systems=True,
-                          upper_bound=3,
-                          lower_bound=1,
-                          max_tries=30,
-                          update_strongly_k=True,
-                          gi=Gi())
+        main.generate_systems(n=10,
+                              min_m=10,
+                              max_n=100,
+                              max_m=300,
+                              step=10,
+                              save_results=True,
+                              save_systems=True,
+                              upper_bound=3,
+                              lower_bound=1,
+                              max_tries=30,
+                              update_strongly_k=True,
+                              gi=Gi())
 
 
 def test_14():
@@ -430,18 +499,18 @@ def test_15():
     :return: 
     """
     main = Main()
-    main.generate_n_m(n=100,
-                      min_m=100,
-                      max_n=500,
-                      max_m=1000,
-                      step=100,
-                      save_results=True,
-                      save_systems=True,
-                      upper_bound=1,
-                      lower_bound=1,
-                      max_tries=1000,
-                      update_strongly_k=True,
-                      gi=Gi())
+    main.generate_systems(n=100,
+                          min_m=100,
+                          max_n=500,
+                          max_m=1000,
+                          step=100,
+                          save_results=True,
+                          save_systems=True,
+                          upper_bound=1,
+                          lower_bound=1,
+                          max_tries=1000,
+                          update_strongly_k=True,
+                          gi=Gi())
 
 
 def test_16():
@@ -450,18 +519,18 @@ def test_16():
     :return: 
     """
     main = Main()
-    main.generate_n_m(n=10,
-                      min_m=10,
-                      max_n=100,
-                      max_m=100,
-                      step=10,
-                      save_results=True,
-                      save_systems=True,
-                      upper_bound=1,
-                      lower_bound=1,
-                      max_tries=1000,
-                      update_strongly_k=True,
-                      gi=Gi())
+    main.generate_systems(n=10,
+                          min_m=10,
+                          max_n=100,
+                          max_m=100,
+                          step=10,
+                          save_results=True,
+                          save_systems=True,
+                          upper_bound=1,
+                          lower_bound=1,
+                          max_tries=1000,
+                          update_strongly_k=True,
+                          gi=Gi())
 
 
 if __name__ == "__main__":
@@ -473,8 +542,8 @@ if __name__ == "__main__":
     # test_3() # Search
     # test_4() # Search
     # test_5() # Run Sat Solver
-    # test_6() # Convert systems to graphs and time them
-    test_7() # Run Traces
+    test_6()  # Convert systems to graphs and time them
+    # test_7()  # Run Traces
     # test_8() # Recursive search
     # test_9() # Search
     # test_10() # Search
@@ -484,4 +553,3 @@ if __name__ == "__main__":
     # test_14() # Search
     # test_15() # Search
     # test_16() # Search
-
