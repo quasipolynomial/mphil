@@ -142,40 +142,46 @@ class PlotHandler(object):
         kwargs["x_label"] = "nodes"
         kwargs["y_label"] = "time(sec)"
         for graph in results:
-            x_axis = []
-            y_axis = []
-            timed_out_x = []
-            timed_out_y = []
+            self.plot_graph(results, graph, **kwargs)
 
-            # Sort nodes
-            for result in results[graph]:
-                result["nodes"] = int(result["nodes"])
-            results[graph].sort(key=operator.itemgetter("nodes"))
-            for result in results[graph]:
+    def plot_graph(self, results, graph, **kwargs):
+        x_axis = []
+        y_axis = []
+        timed_out_x = []
+        timed_out_y = []
 
-                # Some code to deal with nodes with multiple entries
-                if result['nodes'] in x_axis:
-                    pos = x_axis.index(result["nodes"])
-                    # y_axis[pos] = "%.2f" % (float(y_axis[pos]) + float(result["time"]) * 0.5) # avg
-                    v = y_axis[pos] if y_axis[pos] > result["time"] else result["time"]
-                    y_axis[pos] = v
-                    if result["nodes"] in timed_out_x:
-                        pos = timed_out_x.index(result["nodes"])
-                        timed_out_y[pos] = v
-                    continue
+        # Sort nodes
+        for result in results[graph]:
+            result["nodes"] = int(result["nodes"])
+        results[graph].sort(key=operator.itemgetter("nodes"))
+        for result in results[graph]:
 
-                # Deal with timeouts
-                if result["time"] == -1 or result["d_time"] == -1:
-                    print "timed out"
-                    result["time"] = y_axis[-1]
-                    timed_out_x.append(result['nodes'])
-                    timed_out_y.append(result["time"])
+            # Some code to deal with nodes with multiple entries
+            if result['nodes'] in x_axis:
+                pos = x_axis.index(result["nodes"])
+                # y_axis[pos] = "%.2f" % (float(y_axis[pos]) + float(result["time"]) * 0.5) # avg
+                v = y_axis[pos] if y_axis[pos] > result["time"] else result["time"]
+                y_axis[pos] = v
+                if result["nodes"] in timed_out_x:
+                    pos = timed_out_x.index(result["nodes"])
+                    timed_out_y[pos] = v
+                continue
 
-                x_axis.append(result['nodes'])
-                y_axis.append(result['time'])
-            kwargs["timed_out_x"] = timed_out_x
-            kwargs["timed_out_y"] = timed_out_y
+            # Deal with timeouts
+            if result["time"] == -1 or result["d_time"] == -1:
+                print "timed out"
+                result["time"] = y_axis[-1]
+                timed_out_x.append(result['nodes'])
+                timed_out_y.append(result["time"])
 
+            x_axis.append(result['nodes'])
+            y_axis.append(result['time'])
+        kwargs["timed_out_x"] = timed_out_x
+        kwargs["timed_out_y"] = timed_out_y
+
+        if kwargs.get("get", False):
+            return x_axis, y_axis, kwargs
+        else:
             self.plot_plot_2d(graph, x_axis, y_axis, **kwargs)
 
     def plot_construction_results(self, results):
@@ -244,3 +250,32 @@ class PlotHandler(object):
                              x_label="N Values",
                              y_label="M Values")
         self.plot_graph_3d(title, x, y, z)
+
+    def plot_graph_comparison(self, results):
+
+        # Init
+        x_axis = range(10, 100, 10) + range(100, 1000, 100) + range(1000, 10000, 1000)
+        x_label = "nodes"
+        y_label = "time(sec)"
+        title = "Graph comparison"
+        plots = []
+
+        for graph in results:
+            x, y, kwargs = self.plot_graph(results, graph, get=True)
+            plot = {
+                "x": x,
+                "y": y
+            }
+            plots.append(plot)
+
+        # Plotting
+        plt.title(title)
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
+        # plt.xlim([1, 4000])
+        for plot in plots:
+            plt.plot(plot["x"], plot["y"])
+        plt.grid()
+        plt.show()
+        plt.clf()
+        plt.close()

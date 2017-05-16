@@ -82,7 +82,7 @@ class Gi(object):
 
         # Set timeout
         signal.signal(signal.SIGALRM, signal_handler)
-        signal.alarm(kwargs.get("timeout", 0))
+        signal.alarm(kwargs.get("timeout", kwargs.get("timeout", 0)))
 
         # Gather results
         try:
@@ -99,6 +99,7 @@ class Gi(object):
         except TimeoutError:
             print "Timed out: Took too long to validate"
             time = -1
+            d_time = -1
             process.kill()
             process.terminate()
         finally:

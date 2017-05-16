@@ -16,8 +16,8 @@ from handlers.plothandler import PlotHandler
 from handlers.processhandler import ProcessHandler
 
 
-# Todo search for smaller range
-# Todo find more instances
+# DONE Todo search for smaller range
+# DONE Todo find more instances
 # DONE Todo check for k-local consistency
 # DONE Todo Build graphs
 #   2 kinds of graphs
@@ -70,9 +70,9 @@ class Main(object):
         gi = Gi()
         if kwargs.get("graphs"):
             graphs = kwargs.get("graphs")
-            gi.run_graphs(graphs, kwargs)
+            gi.run_graphs(graphs, **kwargs)
         else:
-            gi.run_all_graphs(kwargs)
+            gi.run_all_graphs(**kwargs)
 
     def plot_graphs_results(self, **kwargs):
         """
@@ -83,7 +83,8 @@ class Main(object):
         ph = PlotHandler()
         gi = Gi()
         results = gi.load_results()
-        ph.plot_gi_results(results, kwargs)
+        ph.plot_gi_results(results, **kwargs)
+        ph.plot_graph_comparison(results)
 
     def timed_n_m(self):
         """
@@ -269,8 +270,8 @@ def test_6():
     :return: 
     """
     main = Main()
-    # main.convert_systems(validate=False)
-    main.time_constructions()
+    main.convert_systems(validate=False)
+    # main.time_constructions(load_results=True)
 
 
 def test_7():
@@ -280,10 +281,10 @@ def test_7():
     """
     main = Main()
     main.generate_graphs(outstanding=False,
-                         timeout=False,
+                         timeout=7200,
                          save=True)
 
-    main.plot_graphs_results(save=True)
+    # main.plot_graphs_results(save=True)
 
 
 def test_8():
@@ -467,9 +468,20 @@ if __name__ == "__main__":
     """
     Command line handling
     """
-    # test_11()
-    # test_12()
-    # test_13()
-    test_6()
-    # test_5()
-    # test_16()
+    # test_1() # Search
+    # test_2() # Search
+    # test_3() # Search
+    # test_4() # Search
+    # test_5() # Run Sat Solver
+    # test_6() # Convert systems to graphs and time them
+    test_7() # Run Traces
+    # test_8() # Recursive search
+    # test_9() # Search
+    # test_10() # Search
+    # test_11() # Search
+    # test_12() # Search
+    # test_13() # Search
+    # test_14() # Search
+    # test_15() # Search
+    # test_16() # Search
+
