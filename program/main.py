@@ -167,7 +167,7 @@ class Main(object):
         graphs = {
             "con_all": gi.load_graphs()["con_all"]
         }
-        results = gi.run_graphs(graphs, save=True, timeout=1)
+        results = gi.run_graphs(graphs, save=True, timeout=3600)
 
         # Init
         con_4_10 = []
