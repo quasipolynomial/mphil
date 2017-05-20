@@ -133,11 +133,9 @@ class Gi(object):
         ph = ProcessHandler()
         fh = FileHandler()
         results = {}
-        graphs = self.load_graphs()
         run = ph.run_command("ls -v ./../assets/graphs_run/")
-        for graph in graphs:
-            if graph + ".txt" in run:
-                results[graph] = fh.read_from_file("./../assets/graphs_run/" + graph + ".txt")
+        for graph_run in run:
+            results[graph_run[:-4]] = fh.read_from_file("./../assets/graphs_run/" + graph_run)
         return results
 
     def generate_random_graphs(self):

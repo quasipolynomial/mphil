@@ -141,7 +141,7 @@ class Main(object):
         graphs = {
             "con_all": gi.load_graphs()["con_all"]
         }
-        results = gi.run_graphs(graphs, save=True, timeout=1)
+        results = gi.run_graphs(graphs, save=True, timeout=7200)
 
         # Init
         con_4_10 = []
@@ -210,14 +210,15 @@ class Main(object):
     def plot_constructions_results(self):
         ph = PlotHandler()
         gi = Gi()
+        r = gi.load_results()
         results = {
-            "con_4_10": gi.load_results()["con_4_10"],
-            "con_10_100": gi.load_results()["con_10_100"],
-            "con_100_1000": gi.load_results()["con_100_1000"],
-            "con_n": gi.load_results()["con_n"],
-            "con_2n": gi.load_results()["con_2n"],
-            "con_3n": gi.load_results()["con_3n"],
-            "con_sml": gi.load_results()["con_sml"]
+            "con_4_10": r["con_4_10"],
+            "con_10_100": r["con_10_100"],
+            "con_100_1000": r["con_100_1000"],
+            "con_n": r["con_n"],
+            "con_2n": r["con_2n"],
+            "con_3n": r["con_3n"],
+            "con_sml": r["con_sml"]
         }
         ph.plot_graphs_results(results)
         ph.plot_construction_results(results)
@@ -476,14 +477,14 @@ def test_15():
     main = Main()
     main.generate_systems(n=100,
                           min_m=100,
-                          max_n=500,
-                          max_m=1000,
-                          step=100,
+                          max_n=200,
+                          max_m=200,
+                          step=1,
                           save_results=True,
                           save_systems=True,
                           upper_bound=1,
                           lower_bound=1,
-                          max_tries=1000,
+                          max_tries=10000,
                           update_strongly_k=True,
                           gi=Gi())
 
@@ -506,6 +507,7 @@ def test_16():
                           max_tries=1000,
                           update_strongly_k=True,
                           gi=Gi())
+
 
 
 if __name__ == "__main__":
