@@ -59,9 +59,10 @@ class Gi(object):
             print graph_instance
             graph_results.append(self.run_graph_instance(graph, graph_instance, **kwargs))
 
-        # Save
-        if kwargs.get("save", False):
-            fh.write_to_file("./../assets/graphs_run/" + graph + ".txt", graph_results)
+            # Save
+            if kwargs.get("save", False):
+                print "Saving..."
+                fh.write_to_file("./../assets/graphs_run/" + graph + ".txt", graph_results)
 
         return graph_results
 
