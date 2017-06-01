@@ -32,14 +32,9 @@ class Gi(object):
         :param kwargs: 
         :return: 
         """
-        ph = ProcessHandler()
-        run = ph.run_command("ls -v ./../assets/graphs_run/")
         results = {}
 
         for graph in graphs:
-            # Skip existing graphs
-            if kwargs.get("outstanding", False) and graph + ".txt" in run:
-                continue
             results[graph] = self.run_graph(graphs[graph], graph, **kwargs)
 
         return results
@@ -52,15 +47,28 @@ class Gi(object):
         :return: 
         """
         fh = FileHandler()
+        ph = ProcessHandler()
+        run = ph.run_command("ls -v ./../assets/graphs_run/")
+        save = kwargs.get("save", False)
+        outstanding = kwargs.get("outstanding", False)
+
+
 
         # Gather results
         graph_results = []
         for graph_instance in graphs:
             print graph_instance
+
+            # Skip existing graph
+            if outstanding and graph + ".txt" in run:
+                existing_results = fh.read_from_file("./../assets/graphs_run/{0}.txt".format(graph))
+                if any(d['name'] == graph_instance for d in existing_results):
+                    continue
+
             graph_results.append(self.run_graph_instance(graph, graph_instance, **kwargs))
 
             # Save
-            if kwargs.get("save", False):
+            if save:
                 print "Saving..."
                 fh.write_to_file("./../assets/graphs_run/" + graph + ".txt", graph_results)
 

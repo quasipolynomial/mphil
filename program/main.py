@@ -41,8 +41,12 @@ class Main(object):
         :return: 
         """
         gi = Gi()
+        # kwargs["graphs"] = {
+        #     "tnn": gi.load_graphs()["tnn"]
+        # }
         if kwargs.get("graphs"):
             graphs = kwargs.get("graphs")
+            kwargs.pop('graphs', None)
             gi.run_graphs(graphs, **kwargs)
         else:
             gi.run_all_graphs(**kwargs)
@@ -325,7 +329,7 @@ def test_7():
     :return: 
     """
     main = Main()
-    main.execute_graphs(outstanding=False,
+    main.execute_graphs(outstanding=True,
                         timeout=False,
                         save=True)
 
