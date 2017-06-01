@@ -52,15 +52,19 @@ class Gi(object):
         save = kwargs.get("save", False)
         outstanding = kwargs.get("outstanding", False)
 
+        # Load previous results
+        if outstanding and graph + ".txt" in run:
+            graph_results = fh.read_from_file("./../assets/graphs_run/{0}.txt".format(graph))
+        else:
+            graph_results = []
+
         # Gather results
-        graph_results = []
         for graph_instance in graphs:
             print graph_instance
 
             # Skip existing graph
             if outstanding and graph + ".txt" in run:
-                existing_results = fh.read_from_file("./../assets/graphs_run/{0}.txt".format(graph))
-                if any(d['name'] == graph_instance for d in existing_results):
+                if any(d['name'] == graph_instance for d in graph_results):
                     continue
 
             graph_results.append(self.run_graph_instance(graph, graph_instance, **kwargs))
