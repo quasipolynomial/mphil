@@ -52,8 +52,6 @@ class Gi(object):
         save = kwargs.get("save", False)
         outstanding = kwargs.get("outstanding", False)
 
-
-
         # Gather results
         graph_results = []
         for graph_instance in graphs:

@@ -523,8 +523,8 @@ if __name__ == "__main__":
     # test_3() # Search
     # test_4() # Search
     # test_5() # Run Sat Solver
-    # test_6()  # Convert systems to graphs and time them
-    test_7()  # Run Traces
+    test_6()  # Convert systems to graphs and time them
+    # test_7()  # Run Traces
     # test_8() # Recursive search
     # test_9() # Search
     # test_10() # Search
