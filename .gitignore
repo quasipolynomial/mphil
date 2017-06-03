@@ -1,4 +1,6 @@
-assets
+assets/nauty26r7
+assets/pynauty-0.6.0
+assets/sat
 ./*.pyc
 .idea/
 ./.idea
