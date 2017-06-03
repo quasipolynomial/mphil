@@ -4,6 +4,7 @@
 Logic for generating and timing graphs using Traces package
 """
 
+import datetime
 import re
 import signal
 from handlers.exceptionhandler import signal_handler, TimeoutError
@@ -60,12 +61,13 @@ class Gi(object):
 
         # Gather results
         for graph_instance in graphs:
-            print graph_instance
+            print "{0} {1}".format(graph_instance, datetime.datetime.now())
 
             # Skip existing graph
             if outstanding and graph + ".txt" in run:
                 if any(d['name'] == graph_instance for d in graph_results):
                     continue
+
 
             graph_results.append(self.run_graph_instance(graph, graph_instance, **kwargs))
 
