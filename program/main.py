@@ -330,7 +330,7 @@ def test_7():
     """
     main = Main()
     main.execute_graphs(outstanding=True,
-                        timeout=False,
+                        timeout=10800,
                         save=True)
 
     # main.plot_graphs_results(save=True)
