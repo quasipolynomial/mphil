@@ -31,7 +31,7 @@ class Main(object):
         """
         ph = PlotHandler()
         fh = FileHandler()
-        data = fh.read_from_file(filename, kwargs)
+        data = fh.read_from_file(filename, **kwargs)
         ph.plot_sat_results(data)
 
     def execute_graphs(self, **kwargs):
@@ -318,7 +318,7 @@ def test_6():
     :return: 
     """
     main = Main()
-    # main.convert_systems_to_constructions(validate=False)
+    main.convert_systems_to_constructions(validate=False)
     main.execute_constructions()
     # main.plot_constructions_results()
 
@@ -514,6 +514,7 @@ def test_16():
 
 
 
+
 if __name__ == "__main__":
     """
     Command line handling
@@ -524,7 +525,7 @@ if __name__ == "__main__":
     # test_4() # Search
     # test_5() # Run Sat Solver
     # test_6()  # Convert systems to graphs and time them
-    test_7()  # Run Traces
+    # test_7()  # Run Traces
     # test_8() # Recursive search
     # test_9() # Search
     # test_10() # Search
@@ -534,3 +535,19 @@ if __name__ == "__main__":
     # test_14() # Search
     # test_15() # Search
     # test_16() # Search
+
+
+    fh = FileHandler()
+    ph = PlotHandler()
+    sat = Sat()
+
+    #main = Main()
+    #main.plot_generate_systems_results("/home/kashif/repos/mphil/assets/results/sat/0-n-10000_0-m-10000_step-100/results")
+
+    system = fh.read_from_file("/home/kashif/repos/mphil/assets/results/k-and-not-k/300_600")
+    # a = sat.get_gauss_on_time("/home/kashif/repos/mphil/assets/results/k-and-not-k/300_600")
+    # b = sat.get_gauss_off_time("/home/kashif/repos/mphil/assets/results/k-and-not-k/300_600")
+    print sat.is_system_uniquely_satisfiable(system, 300)
+    # print a, b
+    # for i in data:
+    #     print "{0}\t{1}\t{2}".format(i["nodes"],i["time"], "a")

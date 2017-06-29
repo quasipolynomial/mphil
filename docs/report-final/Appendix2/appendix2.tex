@@ -1,0 +1,90 @@
+%!TEX root = ../thesis.tex
+% ******************************* Thesis Appendix B ********************************
+
+\chapter{System Architecture}
+elaborate on files
+
+\chapter{Algorithms}
+
+\begin{algorithm}[h]
+	\SetAlgoNoLine
+	\KwIn{Integers $n$, $m$, $system$.}
+	\KwOut{A set of random 3 literal clauses}
+	$pool = \{1,2,..,n\}$\;
+	$system=\{\}$\;
+	$tries=3$\;
+	$index=0$\;
+	
+	\Repeat{$index$ == $m$}{
+		\If{$tries==0$}{
+			return $False$\;
+		}
+		$clause$ = random 3 literals from $pool$\;
+		\eIf{$clause \in system$}{
+			$tries-=1$\;
+		}{
+		$system$ add $clause$\;
+		$index+=1$\;
+	}
+}
+
+return $systems$
+\caption{Convert system to construction}
+\label{alg:a2}
+\end{algorithm}
+
+
+\begin{algorithm}[h]
+	\SetAlgoNoLine
+	\KwIn{A set of random 3 literal clauses}
+	\KwOut{Boolean True or False}
+	$pool = \{1,2,..,n\}$\;
+	$system=\{\}$\;
+	$tries=3$\;
+	$index=0$\;
+	
+	\Repeat{$index$ == $m$}{
+		\If{$tries==0$}{
+			return $False$\;
+		}
+		$clause$ = random 3 literals from $pool$\;
+		\eIf{$clause \in system$}{
+			$tries-=1$\;
+		}{
+		$system$ add $clause$\;
+		$index+=1$\;
+	}
+}
+
+return $systems$
+\caption{Is system uniquely satisfiable}
+\label{alg:a3}
+\end{algorithm}
+
+
+\begin{algorithm}[h]
+	\SetAlgoNoLine
+	\KwIn{A set of random 3 literal clauses}
+	\KwOut{Boolean True or False}
+	$pool = \{1,2,..,n\}$\;
+	$system=\{\}$\;
+	$tries=3$\;
+	$index=0$\;
+	
+	\Repeat{$index$ == $m$}{
+		\If{$tries==0$}{
+			return $False$\;
+		}
+		$clause$ = random 3 literals from $pool$\;
+		\eIf{$clause \in system$}{
+			$tries-=1$\;
+		}{
+		$system$ add $clause$\;
+		$index+=1$\;
+	}
+}
+
+return $systems$
+\caption{Is system k-locally consistent}
+\label{alg:a3}
+\end{algorithm}
