@@ -26,7 +26,7 @@ Following the pre-implementation decision of using Python as a programming langu
 \subsubsection{Input}
 In order to comprehend how homogeneous systems are determined efficiently, we will first consider the DIMACS format previously mentioned. (For an elaborate explanation, see the DIMACS website. For our purposes, we will consider only special cases \cite{dimacs_2017}.)
 \par
-Input to the SAT solvers takes the form of text files. An example is shown below. (More examples are available in the appendix.)
+Input to the SAT solvers takes the form of text files. An example is shown below.
 \begin{figure}[htbp!]
 	\captionsetup{justification=justified, singlelinecheck=false}
 	p cnf 4 5 \\
@@ -63,7 +63,7 @@ The first line defines the number of literals and the number of clauses in the c
 	\end{minipage}
 \end{figure}
 
-Evidently, there is a satisfying value for these problems: $a=0, b=1, c=0, d=1$ or $a=False, b=True, c=False, d=True$.
+Evidently, there is a satisfying value for these example: $a=0, b=1, c=0, d=1$ or $a=False, b=True, c=False, d=True$.
 \par
 Similarly, we have the following example input for an XOR-Formula, although CNF and XOR can be readily inferred from one another without the need to change syntax:
 \begin{figure}[htbp!]
@@ -91,12 +91,12 @@ Similarly, we have the following example input for an XOR-Formula, although CNF 
 	$\iff$
 	\begin{minipage}{.2\textwidth}
 		\begin{align*}
-			(b \oplus c \oplus e) \land \\
-			(b \oplus c \oplus f) \land \\
-			(c \oplus d \oplus e) \land \\
-			(a \oplus b \oplus d) \land \\
-			(b \oplus e \oplus f) \land \\
-			(b \oplus c \oplus d) \land \\
+			False(b \oplus c \oplus e) \land \\
+			False(b \oplus c \oplus f) \land \\
+			False(c \oplus d \oplus e) \land \\
+			False(a \oplus b \oplus d) \land \\
+			False(b \oplus e \oplus f) \land \\
+			False(b \oplus c \oplus d) \land \\
 		\end{align*}    
 	\end{minipage}
 \end{figure}
@@ -121,6 +121,7 @@ One way would be to locate uniquely satisfiable homogeneous systems which execut
 \par
 In checking $k$-local consistency using this feature, we would invoke Cryptominisat twice, once with "Gauss-On" and then with "Gauss-Off", on a uniquely satisfiable 3-XOR-Formula. We would take systems which execute faster with Gauss-On versus Gauss-Off. Those systems which have a larger discrepancy in times are deemed as more likely to be $k$-locally consistent, and would result in slower execution times as a construction. These are the systems which we are looking for.  
 
+\newpage
 \subsection{Traces}
 Traces is our GI solver of choice. It has its own specifications of input, namely the DIMACS and \emph{Dreadnaut} standards. The graph constructions available on the Traces website are of these varieties, which are provided to reproduce benchmark tests and experiment with the suite \cite{piperno_2017}. We will use a number of these packages available to compare the performance of our construction. We intend to reproduce the benchmarks, and go further by involving more packages and extending the ones available, that is, creating larger instances of random graphs. Since we intend to execute numerous packages, we must implement an efficient way of executing them. Our goal is to run a family of graphs sequentially, and record execution times. Our construction will be packaged similarly to these graphs.
 
@@ -128,13 +129,13 @@ Traces is our GI solver of choice. It has its own specifications of input, namel
 Executing graphs on Traces comes in a variety of implementations, however, we will be concerned with the well-documented and simple interface that is Dreadnaut. Dreadnaut is a tool that permits us to invoke both Nauty and Traces, with a variety of parameters. It is a command line tool provided in the Nauty/Traces suite which opens a shell for subroutines. Thus, we are able to invoke this tool by means of system class from our Python implementation. The major design issue is that we must use the \emph{.dre} (Dreadnaut) filetype in passing stored graphs as input, and not the generic DIMACS format. Therefore, in outputting our construction, we must adhere to this syntax.
 
 \subsubsection{Benchmarks}
-In reproducing benchmark tests, there is the issue of fairly testing graphs against one another. Hence, a suitable environment for executing constructions is required. For this issue, we consider using a machine that is uninterrupted by system processes. Traces does provide a means of accurately measuring execution times, however, this requires multiple executions of the same graph instance, which becomes costly as we increase the size of graphs. In addition, to attain sub-second timings, many repetitions must be executed to attain these values. This is problematic even for small graphs, where sub-second differences matter. Therefore, a makeshift method of recording times is presented, using the times of system calls (both Traces and system call times are captured in testing). All packages are therefore time in this manner, on an external machine whose sole purpose is to conduct experiments. Moreover, many requirements produced in the benchmarks tended to run for very long periods of time, and had to be bounded by some timeout value. An appropriate value is chosen at the time of implementation.
+In reproducing benchmark tests, there is the issue of fairly testing graphs against one another. Hence, a suitable environment for executing constructions is required. For this issue, we consider using a machine that is uninterrupted by system processes. Traces does provide a means of accurately measuring execution times, however, this requires multiple executions of the same graph instance, which becomes costly as we increase the size of graphs. In addition, to attain sub-second timings, many repetitions must be executed to attain these values. This is problematic even for small graphs, where sub-second differences matter. Therefore, a makeshift method of recording times is presented, using the times of system calls. (Both Traces and system call times are captured in testing, which showed minor differences in times.) All packages are therefore timed in this manner on an external machine whose sole purpose is to conduct experiments. Moreover, many requirements produced in the benchmarks tended to run for very long periods of time, and had to be bounded by some timeout value. An appropriate value is chosen at the time of implementation. 
 
 \section{Software Requirements}
 Now that we have defined the requirements of the major tools utilized, we will describe the requirements of our implementation. These are more general issues, rather than design choices enforced by external software. Our product must meet these specified areas, in addition to the issues raised by tools. 
 
 \subsection{Data Management}
-We will be handling files in storing and executing our data, as well as the graphs provided by Traces. Hence, we will need to program our system to manipulate files, such as stored XOR-Formulas and constructions., which will be used as input to implemented tools. A database could be utilised, although, in our case, we will use the (Linux) filesystem as storage. This will allow us to transfer files as required, rather than having to persist in some datastore. It is important to ensure these files are stored, since locating difficult constructions will take time. The stored files will be provided along with our own package, which will be available as an open-source repository [REF].
+We will be handling files in storing and executing our data, as well as the graphs provided by Traces. Hence, we will need to program our system to manipulate files, such as stored XOR-Formulas and constructions., which will be used as input to implemented tools. A database could be utilised, although, in our case, we will use the (Linux) filesystem as storage. This will allow us to transfer files as required, rather than having to persist in some datastore. It is important to ensure these files are stored, since locating difficult constructions will take time. The stored files will be provided along with our own package, which will be available as an open-source repository which also houses installation information \cite{quasipolynomial}.
 
 \subsection{Reproducibility}
 Ensuring that our results and findings are easily verifiable and reproducible, we provide a GitHub repository where all our work is publicly available. We intend to properly document our codebase, including instructions on how to install our package.

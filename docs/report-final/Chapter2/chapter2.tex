@@ -11,7 +11,7 @@
     \graphicspath{{Chapter2/Figs/Vector/}{Chapter2/Figs/}}
 \fi
 
-In this chapter, preliminary knowledge for understanding our graph is presented. Beginning with graph theory and complexity theory, this will provide basic a understanding of its form, and the problem we are trying to solve. Additionally, we will highlight key concepts from related works, which will be used in constructing our graph. Furthermore, we will briefly describe the history of related tools that we require in development. 
+In this chapter, preliminary knowledge for understanding our graph is presented. Beginning with Graph Theory and Complexity Theory, this will provide basic a understanding of its form, and the problem we are trying to solve. Additionally, we will highlight key concepts from related works, which will be used in constructing our graph. Furthermore, we will briefly describe the history of related tools that we require in development. We primarily use use Diestel's definitions in Graph Theory and Papadimitriou's in Complexity Theory \cite{diestel2005graph}\cite{papadimitriou2003computational}.
 
 \section[Graph Theory]{Graph Theory}
 
@@ -104,22 +104,22 @@ The graph isomorphism problem (GI) is the decision problem determining whether t
 \section{XOR-Formulas on the Threshold of Satisfiability}
 XOR formulas are logical statements that consist of the exclusive $\oplus$ and $\land$ connectives; for example $(a\oplus b \oplus c) \land (d)$ is an XOR-Formula consisting of two \emph{clauses}, namely $a\oplus b \oplus c$ and $d$. Each variable has the value of either False or True. If the statement can be satisfied with True or False values, then we say it is  \emph{satisfiable}, otherwise way say it is \emph{unsatisfiable}.
 \par
-XOR-Formulas are also represented in algebraic terms. Using the previous example, $0=a+b+c (mod 2)$ and $0=d (mod 2)$ is its equivalent statement, also known its \emph{algebraic normal form}. Here, values are assigned either 0 or 1, representing False and True respectively. Therefore, we can interchange descriptions when we mention XOR-Formula: when we say logical statement, we also mean algebraic equation mod 2; when we say formula, we also mean set of equations.
+XOR-Formulas are also represented in algebraic terms. Using the previous example, $1=a+b+c (mod 2)$ and $1=d (mod 2)$ is its equivalent statement, also known its \emph{algebraic normal form}. Here, values are assigned either 0 or 1, representing False and True respectively. Therefore, we can interchange descriptions when we mention XOR-Formula: when we say logical statement, we also mean algebraic equation mod 2; when we say formula, we also mean set of equations.
 \par
-Let $\phi$ denote an XOR-Formula. If $\phi$ has at most $k$ literals in every clause, then we say it is a $k$-XOR-Formula; for example, $(a\oplus b \oplus c) \land (d)$ is a 3-XOR-Formula. We let $n$ denote the number of variables in a formula $\phi$ and $m$ the total number of clauses. A $k$-XORSAT problem is determining the truth of an $k$-XOR-Formula. Dubois and Mandler proved that if $\phi$ has an equal number of variable to clauses $n=m$ and $k\geq3$, then was say it is on the \emph{threshold of satisfiability} \cite{dubois20023}. That is to say, if $n>m$, then $\phi$ will almost surely be satisfiable, and if $n<m$ then $\phi$ is likely to be $unsatisfiable$. Therefore, $n=m$ is a sharp bound for satisfiability for any given instance of $k$-XORSAT, where $k\geq3$. This is confirmed by Pittel and Sorkin \cite{pittel2016satisfiability}.
+Let $\phi$ denote an XOR-Formula. If $\phi$ has at most $k$ variables in every clause, then we say it is a $k$-XOR-Formula; for example, $(a\oplus b \oplus c) \land (d)$ is a 3-XOR-Formula. We let $n$ denote the number of variables in a formula $\phi$ and $m$ the total number of clauses. A $k$-XORSAT problem is determining the truth of an $k$-XOR-Formula. Dubois and Mandler proved that if $\phi$ has an equal number of variable to clauses $n=m$ and $k\geq3$, then was say it is on the \emph{threshold of satisfiability} \cite{dubois20023}. That is to say, if $n>m$, then $\phi$ will almost surely be satisfiable, and if $n<m$ then $\phi$ is likely to be $unsatisfiable$. Therefore, $n=m$ is a sharp bound for satisfiability for any given instance of $k$-XORSAT, where $k\geq3$. This is confirmed by Pittel and Sorkin \cite{pittel2016satisfiability}.
 
 \subsection{Multipedes}
-Multipedes are a form of hypergraph, where there exists hyperedges. Such hyperedges have edges which connect to any number of nodes, that is, they can connect 3 or more elements $h=(x,y,z)$. Normally, we would take $(x,y)$ to represent an edge between nodes, but now we allow $z$ to observe that there exists an edge between $x$ and $y$. We will not describe the mathematical definition of multipedes, as this is covered extensively, and can not be summarised quickly. We can say that they are proven to be rigid but not $C^{k}$ rigid (See Appendix).
+Multipedes are a form of hypergraph, where there exists hyperedges. Such hyperedges have edges which connect to any number of nodes, that is, they can connect 3 or more elements $h=(x,y,z)$. Normally, we would take $(x,y)$ to represent an edge between nodes, but now we allow $z$ to observe that there exists an edge between $x$ and $y$. We will not describe the mathematical definition of multipedes, as this is covered extensively, and can not be summarised quickly \cite{gurevich1996finite}. We can say that they are proven to be rigid due to their $odd$ property, but not $C^{k}$ rigid (See Appendix \ref{sup}).
 
 \newpage
 \section[Construction]{Construction}
-Here we will refer Professor Dawar's notes provided in the Appendix to describe our construction and non-standard terminology. A 3-XOR-Formula $\phi$ is $homogenous$ if the all equations are equal to 0. A homogeneous system is always satisfied by the all-zero solution, whereby all literals equal 0. If the all-zero is the \emph{only} solution to a 3-XOR-Formula, then we say it is \emph{uniquely satisfiable} (See Fig. \ref{fig:3xor}). Our definition of \emph{k-local consistency} is more lengthy, and requires us to describe it in the form of a hypothetical game \cite{}.
+Here we will refer Professor Dawar's notes provided in the Appendix \ref{sup} to describe our construction and non-standard terminology. A 3-XOR-Formula $\phi$ is $homogenous$ if the all equations are equal to 0. A homogeneous system is always satisfied by the all-zero solution, whereby all variables equal 0. If the all-zero is the \emph{only} solution to a 3-XOR-Formula, then we say it is \emph{uniquely satisfiable} (See Fig. \ref{fig:3xor}). Our definition of \emph{k-local consistency} is more lengthy, and requires us to describe it in the form of a hypothetical game.
 \par
 Our construction will be created at random. Recall that $n$ and $m$ represent the number of variables and clauses respectively in a 3-XOR-Formula. From these values, we generate $\phi$ to be uniquely satisfiable and k-locally consistent. Once we know that it has both these properties, we generate our preliminary graph $G_A$, which we will check for automorphisms. If $G_A$ has no non-trivial automorphisms, then we construct our final graph $G_B$. These graphs as described as follows. 
 \par
-$G_A$ has nodes for each literal used and clause. Therefore, if we have $n$ literals and $m$ clause, $G_A$ has $n+m$ nodes. The edges are connections between nodes, such that if a clause contains a literal, then there exists an edge. Every clause as a node, has exactly 3 edges, since every clause has 3 literals. (See Fig. \ref{fig:ga})
+$G_A$ has nodes for each variable used and clause. Therefore, if we have $n$ variables and $m$ clause, $G_A$ has $n+m$ nodes. The edges are connections between nodes, such that if a clause contains a literal, then there exists an edge. Every clause as a node, has exactly 3 edges, since every clause has 3 variables. (See Fig. \ref{fig:ga})
 \par
-$G_B$ is our final construction, once we apply the multipede property to $G_A$. For every literal $x$, we add two nodes $x_{0}$ and $x_{1}$. For every clause $C$, we insert four clauses $C_{1}, C_{2}, C_{3}, C_{4}$. Since $C$ has 3 literals, there is a total of 4 ways in which we build a homogeneous system. For example, take $0=a+b+c$, the all-zero solution is possible $a=0,b=0,c=0$; furthermore, since our equation is \emph{mod 2}, $a=0,b=1,c=1$ and $a=1,b=1,c=0$ and $a=1,b=0,c=1$ are also solutions. We will allocate each solution to a clause such that, if $x$ is in the solution $C$ and equals $0$, then there is an edge between $x_0$ and $C$, and if $x$ is in the solution $C$ and equals $1$, then there is an edge between $x_1$ and $C$. (See Fig. \ref{fig:gb}). $G_{B}$ has a total of $2n+4m$ nodes.
+$G_B$ is our final construction, if $G_A$ has no non-trivial automorphisms. For every literal $x$, we add two nodes $x_{0}$ and $x_{1}$. For every clause $C$, we insert four clauses $C_{1}, C_{2}, C_{3}, C_{4}$. Since $C$ has 3 variables, there is a total of 4 ways in which we build a homogeneous system. For example, take $0=a+b+c$, the all-zero solution is possible $a=0,b=0,c=0$; furthermore, since our equation is \emph{mod 2}, $a=0,b=1,c=1$ and $a=1,b=1,c=0$ and $a=1,b=0,c=1$ are also solutions. We will allocate each solution to a clause such that, if $x$ is in the solution $C$ and equals $0$, then there is an edge between $x_0$ and $C$, and if $x$ is in the solution $C$ and equals $1$, then there is an edge between $x_1$ and $C$. (See Fig. \ref{fig:gb}). $G_{B}$ has a total of $2n+4m$ nodes.
 \begin{figure}[htbp!]
 	\centering
 	\begin{minipage}{.2\textwidth}
@@ -225,10 +225,6 @@ $G_B$ is our final construction, once we apply the multipede property to $G_A$. 
 			\node[shape=circle,draw=black] (7) at (12,0) {$C_2^3$};
 			\node[shape=circle,draw=black] (8) at (14,0) {$C_2^4$};
 		\end{scope}
-%		\node[fill, draw, circle, minimum width=3pt, inner sep=0pt] at (11,2) {};	
-%		\node[fill, draw, circle, minimum width=3pt, inner sep=0pt] at (11.5,2) {};
-%		\node[fill, draw, circle, minimum width=3pt, inner sep=0pt] at (12,2) {};
-		
 		\path [-](1) edge node {} (bb);
 		\path [-](1) edge node {} (cc);
 		\path [-](1) edge node {} (ee);
@@ -260,22 +256,27 @@ $G_B$ is our final construction, once we apply the multipede property to $G_A$. 
 	\caption{Snippet of example final graph $G_B$ on $\phi$.}{Only $C_1$ and $C_2$ is shown}
 	\label{fig:gb}
 \end{figure}
+
+Professor Dawar's construction creates rigid graphs based off the $odd$ property of multipedes. The oddness property is replaced with check for unique satisfiability of an 3-XOR-Formula. Similarly the check for $k$-local consistency is replaced by identifying whether 3-XOR-Forumlas are solved quicker using Gaussian elimination operating within the algorithm, in comparison to the same formula without Gaussian elimination. In short, the check for oddness is replaced by unique satisfiability, thereby rendering them rigid, and the check for $k$-local consistency is estimated by comparing Gaussian elimination on and off times.
+
 \newpage
 \section[Solvers]{Solvers}
 In order to construct our graphs, we will require multiple checks at different stages of construction. When we generate a random 3-XOR-Formula $\phi$, we need to ensure that it is $k$-locally consistent, uniquely satisfiable and gives rise to a preliminary graph with no automorphisms.  Checking for $k$-local consistency and unique satisfiability requires a SAT solving program to determine these attributes. Whereas a GI solver, namely Traces, is utilised to check for automorphisms.
 
 \subsection[GI Solvers]{GI Solvers}
 The programs Nauty and Traces are two of the fastest GI solvers for most cases of small and large graphs respectively. Nauty  was developed in the 1980s by B. Mckay \cite{mckay1981practical}, which was subsequently revised and incorporated into Traces \cite{mckay2014practical} in 2013. These programs utilise two key components in their algorithms: vertex colour refinement and factoring of graphs through found automorphisms.
-\par
+
 Two main procedures provided by the Nauty and Traces are Automorphism Group ($Aut(G)$) and Canonical Labelling ($Canon(G)$) of graphs. Our work is concerned only with the $Aut(G)$ function, as graphs which execute slowly on $Aut(G)$ tend execute slowly on Canon(G) \cite{mckay2014practical}. These procedures are used to benchmark the performance of their algorithm, since the exact complexity of these programs is unknown. Additionally, since $Aut(G)$ shows us whether there are any automorphisms of a graph G, we use this feature in validating our preliminary graph $G_A$, as well as determining the performance of our final graph $G_B$.
-\par
+
 The heuristic algorithm behind Nauty and Traces to determine graph isomorphism is a backtracking search which is based off two key elements: vertex colour refinement (also known as a 1-dimensional Weisfeiler-Leman test) and factoring graphs through found automorphisms \cite{mckay2014practical}. Our construction, being both rigid and resistant to Weisfeiler-Leman tests and its high dimensional variants, should be difficult for this algorithm.
+
 \newpage
 \subsection{SAT Solvers}
 The algorithms behind SAT solvers typically use Gaussian Elimination in solving a system of linear equations. In some cases, this feature can be disabled, and some implementations do not use it all. By toggling Gaussian Elimination on and off, and recording the times, one can make a good guess at whether $\phi$ is $k$-locally consistent. Randomly generated systems which are solved significantly faster with Gaussian Elimination on versus off are ones of interest. The prediction is that systems with greater differences in execution speeds hints at $k$-local consistency of a system.
 
 \section{Previous Attempt}
-Recently, a study searched for the family of graphs Babai describes. E. Arrighi, a Cambridge intern guided by Prof. A. Dawar, the project supervisor, found that multipedes are theoretically complex for Traces. Arrighi concluded that the smallest examples of suitable probabilistically generated multipedes, containing significantly high probability of non-trivial automorphisms, would be too large to generate, so rendering them too large for experimentation on Traces [REF]. Instead, our approach utilised the same concepts from such hypergraphs, but constructs them in a smaller fashion.
+Recently, a study searched for the family of graphs Babai describes. E. Arrighi, a Cambridge intern guided by Prof. A. Dawar, the project supervisor, found that multipedes are theoretically complex for Traces. Arrighi concluded that the smallest examples of suitable probabilistically generated multipedes, containing significantly high probability of non-trivial automorphisms, would be too large to generate, so rendering them too large for experimentation on Traces. Instead, our approach utilised the same concepts from such hypergraphs, but constructs them in a smaller fashion.
+
 
 
 

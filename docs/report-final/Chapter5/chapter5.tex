@@ -10,8 +10,8 @@
 \else
     \graphicspath{{Chapter3/Figs/Vector/}{Chapter3/Figs/}}
 \fi
-We evaluate our system in two parts: evaluation of program performance, and then how our construction did. Once defined, we will elaborate on results on various findings. Firstly, we will define our tested and the performance of benchmark graphs provided by Traces.
 
+We evaluate our system in two parts: evaluation of program performance, and then how our construction did. Once defined, we will elaborate on results on various findings. Firstly, we will define our tested and the performance of benchmark graphs provided by Traces. For results which were not crucial to this project, see our GitHub repository \cite{quasipolynomial}. 
 
 \section{Testing Environment}
 Our experiments were conducted on a cloud computer server to ensure long-running processes, such as searching and executing families of graphs, remained undisturbed. We often had to resize and make adjustments to system resources, as computing with our instances became difficult, as well as some benchmark graphs. We had the following setup.
@@ -43,7 +43,7 @@ In gaining insight of the performance of our graphs, we first describe what resu
 
 \subsubsection{Random Graphs}
 Knowing that Traces may run out of memory, and in part, the most intuitive graph we can compare to are random graphs with differing edge probabilities. Our construction is also generated at random, but with a much more sophisticated algorithm. So random graphs provided a starting point for comparison and testing the capabilities of Traces.
-\par
+
 The random graphs provided by Traces differed in edge probabilities: 1/2, 1/10 and sqrt(n), where n is the number of vertices. that is to say, given a number of nodes n, add edges with the probabilities to each pair of nodes with edge probabilities above. The sizes of these graphs however, was somewhat small, ranging up to 5000 nodes. In practice, these executed the Automorphism Group test of Traces quickly. We then made it our business to extend up to 30,000 nodes to see what would happen.
 
 \begin{figure}[htbp!] 
@@ -162,6 +162,7 @@ The random graphs provided by Traces differed in edge probabilities: 1/2, 1/10 a
 	
 	\caption{Extended random graphs up to 30,000 nodes}
 \end{figure}
+
 \newpage
 \subsubsection{Cai-Furer-Immerman Graphs}
 Another notable graph family are the Cai-Furer-Immerman graphs, also known as CFI. These constructions are resistant to the 1-dimensional Weisfeller-Lehman tests and variants, but are prone to being factored by automorphisms in Traces. See Figure \ref{fig:cfi}.
@@ -170,7 +171,6 @@ Another notable graph family are the Cai-Furer-Immerman graphs, also known as CF
 Other notable graphs which we include here are graphs which were amongst the slowest executing. These include Hadamard (had), Disjoint union of triparite graphs (tnn) and projective planes of order 25 (pp). Note that on the $x$ axis of pp graphs we select only the graphs which have 1302 nodes. thus, the $x$ axis only represents the label of the graph.
 
 \begin{figure}[htbp!]
-	\label{fig:cfi}
 	\centering
 	\begin{minipage}{.4\textwidth}
 		\begin{tikzpicture}[trim left=0cm, scale=0.8]
@@ -372,8 +372,9 @@ Other notable graphs which we include here are graphs which were amongst the slo
 	\captionsetup{justification=centering}
 	\caption{Left: Cai-Furer-Immerman graphs (cfi).
 		Right: Hadamard (had). }
+	
+	\label{fig:cfi}
 \end{figure}
-
 \begin{figure}[htbp!] 
 	\centering
 	\begin{minipage}{.4\textwidth}
@@ -633,15 +634,941 @@ Other notable graphs which we include here are graphs which were amongst the slo
 	\caption{Left: Disjoint union of tripartite graphs (tnn).\\
 		Right: Projective planes of order 25 containing 1302 nodes (pp). }
 \end{figure}
+
 \newpage
 \section{Results}
 Here we present the performance of our construction for varying node sizes. 
 
 \subsection{Packages}
-Since we range our systems in complexity and along different rations, we package our graphs into three: n=m, 2n=m and smallest ratios found. Given that we stop finding systems for a reasonable number of tries at 139 for n=m, we continue searching the closest we can, without having to ramp up the try value. Hence, for the most part, tries were left at 10, and we performed and advanced search with multiple iterations (>30), updating k-locally consistent systems and checking for automorphisms on the fly. We then executed some logic to separate these packages along the lines defined above. Of course, we could have had more lines, say $3n=m$ and $xn=m$, where $1<x<2$. But our results proved satisfactory to show distinctive times. We did provide more packages, but we will focus on these for now.
+Since we range our systems in complexity and along different rations, we package our graphs into three: $n=m$, $2n=m$ and smallest ratios found. Given that we stop finding systems for a reasonable number of tries at 139 for $n=m$, we continue searching the closest we can, without having to ramp up the try value. Hence, for the most part, tries were left at 10, and we performed and Advanced Search with multiple iterations (>30), updating k-locally consistent systems and checking for automorphisms on the fly. We then executed some logic to separate these packages along the lines defined above. Of course, we could have had more lines, say $3n=m$ and $xn=m$, where $1<x<2$. But our results proved satisfactory to show distinctive times. We did provide more packages, but we will focus on these for now. Figure \ref{fig:inst} best describes what we mean by various lines and instances found for $n$ and $m$. Note that these instances are not necessarily $k$-locally consistent. 
 
+
+\begin{figure}[h]
+	\centering
+	  \begin{tikzpicture}[scale=0.8]
+		\begin{axis}[
+		compat=newest,
+		xmin=0,
+		xmax=1500,
+		ymin=0,
+		ymax=6000,
+		xlabel={$n$}
+		]
+		\addplot[
+		scatter,only marks,scatter src=explicit symbolic,
+		scatter/classes={
+			a={mark=x,blue}
+		}
+		]
+		table[x=x,y=y,meta=label]{
+			x    y    label
+			100  100 a
+			100  200 a
+			100  300 a
+			100  400 a
+			200  200 a
+			200  300 a
+			200  400 a
+			200  500 a
+			200  600 a
+			200  700 a
+			200  800 a
+			200  900 a
+			300  400 a
+			300  500 a
+			300  600 a
+			300  700 a
+			300  800 a
+			300  900 a
+			300  1000 a
+			300  1100 a
+			300  1200 a
+			300  1300 a
+			300  1400 a
+			400  500 a
+			400  600 a
+			400  700 a
+			400  800 a
+			400  900 a
+			400  1000 a
+			400  1100 a
+			400  1200 a
+			400  1300 a
+			400  1400 a
+			400  1500 a
+			400  1600 a
+			400  1700 a
+			400  1800 a
+			400  1900 a
+			500  700 a
+			500  800 a
+			500  900 a
+			500  1000 a
+			500  1100 a
+			500  1200 a
+			500  1300 a
+			500  1400 a
+			500  1500 a
+			500  1600 a
+			500  1700 a
+			500  1800 a
+			500  1900 a
+			500  2000 a
+			500  2100 a
+			500  2200 a
+			500  2300 a
+			500  2400 a
+			600  1000 a
+			600  1100 a
+			600  1200 a
+			600  1300 a
+			600  1400 a
+			600  1500 a
+			600  1600 a
+			600  1700 a
+			600  1800 a
+			600  1900 a
+			600  2000 a
+			600  2100 a
+			600  2200 a
+			600  2300 a
+			600  2400 a
+			600  2500 a
+			600  2600 a
+			600  2700 a
+			600  2800 a
+			600  2900 a
+			700  1200 a
+			700  1300 a
+			700  1400 a
+			700  1500 a
+			700  1600 a
+			700  1700 a
+			700  1800 a
+			700  1900 a
+			700  2000 a
+			700  2100 a
+			700  2200 a
+			700  2300 a
+			700  2400 a
+			700  2500 a
+			700  2600 a
+			700  2700 a
+			700  2800 a
+			700  2900 a
+			700  3000 a
+			700  3100 a
+			700  3200 a
+			700  3300 a
+			700  3400 a
+			800  1500 a
+			800  1600 a
+			800  1700 a
+			800  1800 a
+			800  1900 a
+			800  2000 a
+			800  2100 a
+			800  2200 a
+			800  2300 a
+			800  2400 a
+			800  2500 a
+			800  2600 a
+			800  2700 a
+			800  2800 a
+			800  2900 a
+			800  3000 a
+			800  3100 a
+			800  3200 a
+			800  3300 a
+			800  3400 a
+			800  3500 a
+			800  3600 a
+			800  3700 a
+			800  3800 a
+			800  3900 a
+			900  1500 a
+			900  1600 a
+			900  1700 a
+			900  1800 a
+			900  1900 a
+			900  2000 a
+			900  2100 a
+			900  2200 a
+			900  2300 a
+			900  2400 a
+			900  2500 a
+			900  2600 a
+			900  2700 a
+			900  2800 a
+			900  2900 a
+			900  3000 a
+			900  3100 a
+			900  3200 a
+			900  3300 a
+			900  3400 a
+			900  3500 a
+			900  3600 a
+			900  3700 a
+			900  3800 a
+			900  3900 a
+			900  4000 a
+			900  4100 a
+			900  4200 a
+			900  4300 a
+			900  4400 a
+			1000  1700 a
+			1000  1800 a
+			1000  1900 a
+			1000  2000 a
+			1000  2100 a
+			1000  2200 a
+			1000  2300 a
+			1000  2400 a
+			1000  2500 a
+			1000  2600 a
+			1000  2700 a
+			1000  2800 a
+			1000  2900 a
+			1000  3000 a
+			1000  3100 a
+			1000  3200 a
+			1000  3300 a
+			1000  3400 a
+			1000  3500 a
+			1000  3600 a
+			1000  3700 a
+			1000  3800 a
+			1000  3900 a
+			1000  4000 a
+			1000  4100 a
+			1000  4200 a
+			1000  4300 a
+			1000  4400 a
+			1000  4500 a
+			1000  4600 a
+			1000  4700 a
+			1000  4800 a
+			1000  4900 a
+			1100  1800 a
+			1100  1900 a
+			1100  2000 a
+			1100  2100 a
+			1100  2200 a
+			1100  2300 a
+			1100  2400 a
+			1100  2500 a
+			1100  2600 a
+			1100  2700 a
+			1100  2800 a
+			1100  2900 a
+			1100  3000 a
+			1100  3100 a
+			1100  3200 a
+			1100  3300 a
+			1100  3400 a
+			1100  3500 a
+			1100  3600 a
+			1100  3700 a
+			1100  3800 a
+			1100  3900 a
+			1100  4000 a
+			1100  4100 a
+			1100  4200 a
+			1100  4300 a
+			1100  4400 a
+			1100  4500 a
+			1100  4600 a
+			1100  4700 a
+			1100  4800 a
+			1100  4900 a
+			1100  5000 a
+			1100  5100 a
+			1100  5200 a
+			1100  5300 a
+			1100  5400 a
+			1200  2200 a
+			1200  2300 a
+			1200  2400 a
+			1200  2500 a
+			1200  2600 a
+			1200  2700 a
+			1200  2800 a
+			1200  2900 a
+			1200  3000 a
+			1200  3100 a
+			1200  3200 a
+			1200  3300 a
+			1200  3400 a
+			1200  3500 a
+			1200  3600 a
+			1200  3700 a
+			1200  3800 a
+			1200  3900 a
+			1200  4000 a
+			1200  4100 a
+			1200  4200 a
+			1200  4300 a
+			1200  4400 a
+			1200  4500 a
+			1200  4600 a
+			1200  4700 a
+			1200  4800 a
+			1200  4900 a
+			1200  5000 a
+			1200  5100 a
+			1200  5200 a
+			1200  5300 a
+			1200  5400 a
+			1200  5500 a
+			1200  5600 a
+			1200  5700 a
+			1200  5800 a
+			1200  5900 a
+			1300  2600 a
+			1300  2700 a
+			1300  2800 a
+			1300  2900 a
+			1300  3000 a
+			1300  3100 a
+			1300  3200 a
+			1300  3300 a
+			1300  3400 a
+			1300  3500 a
+			1300  3600 a
+			1300  3700 a
+			1300  3800 a
+			1300  3900 a
+			1300  4000 a
+			1300  4100 a
+			1300  4200 a
+			1300  4300 a
+			1300  4400 a
+			1300  4500 a
+			1300  4600 a
+			1300  4700 a
+			1300  4800 a
+			1300  4900 a
+			1300  5000 a
+			1300  5100 a
+			1300  5200 a
+			1300  5300 a
+			1300  5400 a
+			1300  5500 a
+			1300  5600 a
+			1300  5700 a
+			1300  5800 a
+			1300  5900 a
+			1300  6000 a
+			1300  6100 a
+			1300  6200 a
+			1300  6300 a
+			1300  6400 a
+			1400  2600 a
+			1400  2700 a
+			1400  2800 a
+			1400  2900 a
+			1400  3000 a
+			1400  3100 a
+			1400  3200 a
+			1400  3300 a
+			1400  3400 a
+			1400  3500 a
+			1400  3600 a
+			1400  3700 a
+			1400  3800 a
+			1400  3900 a
+			1400  4000 a
+			1400  4100 a
+			1400  4200 a
+			1400  4300 a
+			1400  4400 a
+			1400  4500 a
+			1400  4600 a
+			1400  4700 a
+			1400  4800 a
+			1400  4900 a
+			1400  5000 a
+			1400  5100 a
+			1400  5200 a
+			1400  5300 a
+			1400  5400 a
+			1400  5500 a
+			1400  5600 a
+			1400  5700 a
+			1400  5800 a
+			1400  5900 a
+			1400  6000 a
+			1400  6100 a
+			1400  6200 a
+			1400  6300 a
+			1400  6400 a
+			1400  6500 a
+			1400  6600 a
+			1400  6700 a
+			1400  6800 a
+			1400  6900 a
+			1500  3000 a
+			1500  3100 a
+			1500  3200 a
+			1500  3300 a
+			1500  3400 a
+			1500  3500 a
+			1500  3600 a
+			1500  3700 a
+			1500  3800 a
+			1500  3900 a
+			1500  4000 a
+			1500  4100 a
+			1500  4200 a
+			1500  4300 a
+			1500  4400 a
+			1500  4500 a
+			1500  4600 a
+			1500  4700 a
+			1500  4800 a
+			1500  4900 a
+			1500  5000 a
+			1500  5100 a
+			1500  5200 a
+			1500  5300 a
+			1500  5400 a
+			1500  5500 a
+			1500  5600 a
+			1500  5700 a
+			1500  5800 a
+			1500  5900 a
+			1500  6000 a
+			1500  6100 a
+			1500  6200 a
+			1500  6300 a
+			1500  6400 a
+			1500  6500 a
+			1500  6600 a
+			1500  6700 a
+			1500  6800 a
+			1500  6900 a
+			1500  7000 a
+			1500  7100 a
+			1500  7200 a
+			1500  7300 a
+			1500  7400 a
+			1600  3200 a
+			1600  3300 a
+			1600  3400 a
+			1600  3500 a
+			1600  3600 a
+			1600  3700 a
+			1600  3800 a
+			1600  3900 a
+			1600  4000 a
+			1600  4100 a
+			1600  4200 a
+			1600  4300 a
+			1600  4400 a
+			1600  4500 a
+			1600  4600 a
+			1600  4700 a
+			1600  4800 a
+			1600  4900 a
+			1600  5000 a
+			1600  5100 a
+			1600  5200 a
+			1600  5300 a
+			1600  5400 a
+			1600  5500 a
+			1600  5600 a
+			1600  5700 a
+			1600  5800 a
+			1600  5900 a
+			1600  6000 a
+			1600  6100 a
+			1600  6200 a
+			1600  6300 a
+			1600  6400 a
+			1600  6500 a
+			1600  6600 a
+			1600  6700 a
+			1600  6800 a
+			1600  6900 a
+			1600  7000 a
+			1600  7100 a
+			1600  7200 a
+			1600  7300 a
+			1600  7400 a
+			1600  7500 a
+			1600  7600 a
+			1600  7700 a
+			1600  7800 a
+			1600  7900 a
+			1700  3300 a
+			1700  3400 a
+			1700  3500 a
+			1700  3600 a
+			1700  3700 a
+			1700  3800 a
+			1700  3900 a
+			1700  4000 a
+			1700  4100 a
+			1700  4200 a
+			1700  4300 a
+			1700  4400 a
+			1700  4500 a
+			1700  4600 a
+			1700  4700 a
+			1700  4800 a
+			1700  4900 a
+			1700  5000 a
+			1700  5100 a
+			1700  5200 a
+			1700  5300 a
+			1700  5400 a
+			1700  5500 a
+			1700  5600 a
+			1700  5700 a
+			1700  5800 a
+			1700  5900 a
+			1700  6000 a
+			1700  6100 a
+			1700  6200 a
+			1700  6300 a
+			1700  6400 a
+			1700  6500 a
+			1700  6600 a
+			1700  6700 a
+			1700  6800 a
+			1700  6900 a
+			1700  7000 a
+			1700  7100 a
+			1700  7200 a
+			1700  7300 a
+			1700  7400 a
+			1700  7500 a
+			1700  7600 a
+			1700  7700 a
+			1700  7800 a
+			1700  7900 a
+			1700  8000 a
+			1700  8100 a
+			1700  8200 a
+			1700  8300 a
+			1700  8400 a
+			1800  3900 a
+			1800  4000 a
+			1800  4100 a
+			1800  4200 a
+			1800  4300 a
+			1800  4400 a
+			1800  4500 a
+			1800  4600 a
+			1800  4700 a
+			1800  4800 a
+			1800  4900 a
+			1800  5000 a
+			1800  5100 a
+			1800  5200 a
+			1800  5300 a
+			1800  5400 a
+			1800  5500 a
+			1800  5600 a
+			1800  5700 a
+			1800  5800 a
+			1800  5900 a
+			1800  6000 a
+			1800  6100 a
+			1800  6200 a
+			1800  6300 a
+			1800  6400 a
+			1800  6500 a
+			1800  6600 a
+			1800  6700 a
+			1800  6800 a
+			1800  6900 a
+			1800  7000 a
+			1800  7100 a
+			1800  7200 a
+			1800  7300 a
+			1800  7400 a
+			1800  7500 a
+			1800  7600 a
+			1800  7700 a
+			1800  7800 a
+			1800  7900 a
+			1800  8000 a
+			1800  8100 a
+			1800  8200 a
+			1800  8300 a
+			1800  8400 a
+			1800  8500 a
+			1800  8600 a
+			1800  8700 a
+			1800  8800 a
+			1800  8900 a
+			1900  4000 a
+			1900  4100 a
+			1900  4200 a
+			1900  4300 a
+			1900  4400 a
+			1900  4500 a
+			1900  4600 a
+			1900  4700 a
+			1900  4800 a
+			1900  4900 a
+			1900  5000 a
+			1900  5100 a
+			1900  5200 a
+			1900  5300 a
+			1900  5400 a
+			1900  5500 a
+			1900  5600 a
+			1900  5700 a
+			1900  5800 a
+			1900  5900 a
+			1900  6000 a
+			1900  6100 a
+			1900  6200 a
+			1900  6300 a
+			1900  6400 a
+			1900  6500 a
+			1900  6600 a
+			1900  6700 a
+			1900  6800 a
+			1900  6900 a
+			1900  7000 a
+			1900  7100 a
+			1900  7200 a
+			1900  7300 a
+			1900  7400 a
+			1900  7500 a
+			1900  7600 a
+			1900  7700 a
+			1900  7800 a
+			1900  7900 a
+			1900  8000 a
+			1900  8100 a
+			1900  8200 a
+			1900  8300 a
+			1900  8400 a
+			1900  8500 a
+			1900  8600 a
+			1900  8700 a
+			1900  8800 a
+			1900  8900 a
+			1900  9000 a
+			1900  9100 a
+			1900  9200 a
+			1900  9300 a
+			1900  9400 a
+			2000  2000 a
+			2000  2100 a
+			2000  2200 a
+			2000  2300 a
+			2000  2400 a
+			2000  2500 a
+			2000  2600 a
+			2000  2700 a
+			2000  2800 a
+			2000  2900 a
+			2000  3000 a
+			2000  3100 a
+			2000  3200 a
+			2000  3300 a
+			2000  3400 a
+			2000  3500 a
+			2000  3600 a
+			2000  3700 a
+			2000  3800 a
+			2000  3900 a
+			2000  4000 a
+			2000  4100 a
+			2000  4200 a
+			2000  4300 a
+			2000  4400 a
+			2000  4500 a
+			2000  4600 a
+			2000  4700 a
+			2000  4800 a
+			2000  4900 a
+			2000  5000 a
+			2000  5100 a
+			2000  5200 a
+			2000  5300 a
+			2000  5400 a
+			2000  5500 a
+			2000  5600 a
+			2000  5700 a
+			2000  5800 a
+			2000  5900 a
+			2000  6000 a
+			2000  6100 a
+			2000  6200 a
+			2000  6300 a
+			2000  6400 a
+			2000  6500 a
+			2000  6600 a
+			2000  6700 a
+			2000  6800 a
+			2000  6900 a
+			2000  7000 a
+			2000  7100 a
+			2000  7200 a
+			2000  7300 a
+			2000  7400 a
+			2000  7500 a
+			2000  7600 a
+			2000  7700 a
+			2000  7800 a
+			2000  7900 a
+			2000  8000 a
+			2000  8100 a
+			2000  8200 a
+			2000  8300 a
+			2000  8400 a
+			2000  8500 a
+			2000  8600 a
+			2000  8700 a
+			2000  8800 a
+			2000  8900 a
+			2000  9000 a
+			2000  9100 a
+			2000  9200 a
+			2000  9300 a
+			2000  9400 a
+			2000  9500 a
+			2000  9600 a
+			2000  9700 a
+			2000  9800 a
+			2000  9900 a
+			2100  4100 a
+			2100  4200 a
+			2100  4300 a
+			2100  4400 a
+			2100  4500 a
+			2100  4600 a
+			2100  4700 a
+			2100  4800 a
+			2100  4900 a
+			2100  5000 a
+			2100  5100 a
+			2100  5200 a
+			2100  5300 a
+			2100  5400 a
+			2100  5500 a
+			2100  5600 a
+			2100  5700 a
+			2100  5800 a
+			2100  5900 a
+			2100  6000 a
+			2100  6100 a
+			2100  6200 a
+			2100  6300 a
+			2100  6400 a
+			2100  6500 a
+			2100  6600 a
+			2100  6700 a
+			2100  6800 a
+			2100  6900 a
+			2100  7000 a
+			2100  7100 a
+			2100  7200 a
+			2100  7300 a
+			2100  7400 a
+			2100  7500 a
+			2100  7600 a
+			2100  7700 a
+			2100  7800 a
+			2100  7900 a
+			2100  8000 a
+			2100  8100 a
+			2100  8200 a
+			2100  8300 a
+			2100  8400 a
+			2100  8500 a
+			2100  8600 a
+			2100  8700 a
+			2100  8800 a
+			2100  8900 a
+			2100  9000 a
+			2100  9100 a
+			2100  9200 a
+			2100  9300 a
+			2100  9400 a
+			2100  9500 a
+			2100  9600 a
+			2100  9700 a
+			2100  9800 a
+			2100  9900 a
+			2100  10000 a
+			2200  4500 a
+			2200  4600 a
+			2200  4700 a
+			2200  4800 a
+			2200  4900 a
+			2200  5000 a
+			2200  5100 a
+			2200  5200 a
+			2200  5300 a
+			2200  5400 a
+			2200  5500 a
+			2200  5600 a
+			2200  5700 a
+			2200  5800 a
+			2200  5900 a
+			2200  6000 a
+			2200  6100 a
+			2200  6200 a
+			2200  6300 a
+			2200  6400 a
+			2200  6500 a
+			2200  6600 a
+			2200  6700 a
+			2200  6800 a
+			2200  6900 a
+			2200  7000 a
+			2200  7100 a
+			2200  7200 a
+			2200  7300 a
+			2200  7400 a
+			2200  7500 a
+			2200  7600 a
+			2200  7700 a
+			2200  7800 a
+			2200  7900 a
+			2200  8000 a
+			2200  8100 a
+			2200  8200 a
+			2200  8300 a
+			2200  8400 a
+			2200  8500 a
+			2200  8600 a
+			2200  8700 a
+			2200  8800 a
+			2200  8900 a
+			2200  9000 a
+			2200  9100 a
+			2200  9200 a
+			2200  9300 a
+			2200  9400 a
+			2200  9500 a
+			2200  9600 a
+			2200  9700 a
+			2200  9800 a
+			2200  9900 a
+			2200  10000 a
+			2300  4900 a
+			2300  5000 a
+			2300  5100 a
+			2300  5200 a
+			2300  5300 a
+			2300  5400 a
+			2300  5500 a
+			2300  5600 a
+			2300  5700 a
+			2300  5800 a
+			2300  5900 a
+			2300  6000 a
+			2300  6100 a
+			2300  6200 a
+			2300  6300 a
+			2300  6400 a
+			2300  6500 a
+			2300  6600 a
+			2300  6700 a
+			2300  6800 a
+			2300  6900 a
+			2300  7000 a
+			2300  7100 a
+			2300  7200 a
+			2300  7300 a
+			2300  7400 a
+			2300  7500 a
+			2300  7600 a
+			2300  7700 a
+			2300  7800 a
+			2300  7900 a
+			2300  8000 a
+			2300  8100 a
+			2300  8200 a
+			2300  8300 a
+			2300  8400 a
+			2300  8500 a
+			2300  8600 a
+			2300  8700 a
+			2300  8800 a
+			2300  8900 a
+			2300  9000 a
+			2300  9100 a
+			2300  9200 a
+			2300  9300 a
+			2300  9400 a
+			2300  9500 a
+			2300  9600 a
+			2300  9700 a
+			2300  9800 a
+			2300  9900 a
+			2300  10000 a
+			2400  5200 a
+			2400  5300 a
+			2400  5400 a
+			2400  5500 a
+			2400  5600 a
+			2400  5700 a
+			2400  5800 a
+			2400  5900 a
+			2400  6000 a
+			2400  6100 a
+			2400  6200 a
+			2400  6300 a
+			2400  6400 a
+			2400  6500 a
+			2400  6600 a
+			2400  6700 a
+			2400  6800 a
+			2400  6900 a
+			2400  7000 a
+			2400  7100 a
+			2400  7200 a
+			2400  7300 a
+			2400  7400 a
+			2400  7500 a
+			2400  7600 a
+			2400  7700 a
+			2400  7800 a
+			2400  7900 a
+			2400  8000 a
+			2400  8100 a
+			2400  8200 a
+			2400  8300 a
+			2400  8400 a
+			2400  8500 a
+			2400  8600 a
+			2400  8700 a
+			2400  8800 a
+			2400  8900 a
+			2400  9000 a
+			2400  9100 a
+			2400  9200 a
+			2400  9300 a
+			2400  9400 a
+			2400  9500 a
+			2400  9600 a
+			2400  9700 a
+			2400  9800 a
+			2400  9900 a
+			2400  10000 a
+		};
+		\draw[color=red] (0,0) -- (1500,1500) node[right] {a};
+		\draw[color=green] (0,0) -- (1500,3000);
+		\draw[color=cyan] (0,0) -- (1500,4500);
+		\end{axis}
+	  \end{tikzpicture}
+	  \caption{Uniquely satisfiable instances found.}{Red: $n=m$; Green: $2n=m$; Cyan:$3n=m$; Crosses: Uniquely satisfiable instances found}
+	  \label{fig:inst}
+	  
+\end{figure}
+\newpage
 \subsection{Performance}
 Here we present the performance of varying packages. Figure \ref{fig:px} displays the timings of the three packages created. Figure \ref{fig:py} illustrates our most difficult package \emph{con\_sml} versus existing benchmarks. Results showed that we consistently produced graphs which executed for longer than three hours, however, since many of the packages did not execute for longer than the specified timeout, we could not compare graphs of equal sizes for most graphs which timed out. 
+
 
 \begin{figure}[htbp!] 
 	\centering
@@ -650,7 +1577,7 @@ Here we present the performance of varying packages. Figure \ref{fig:px} display
 		\begin{axis}[
 		xlabel=nodes,
 		ylabel=t sec,
-		grid=both
+		grid=both,
 		]
 		\addplot[
 		scatter,only marks,scatter src=explicit symbolic,
@@ -707,11 +1634,9 @@ Here we present the performance of varying packages. Figure \ref{fig:px} display
 		ylabel=t sec,
 		grid=both,
 		extra y ticks={900},
-		extra tick style={grid=major, grid style={dotted, cyan}},
 		extra y tick labels={\hspace{5em}$timeout$},
-		extra x tick labels={},
 		extra y tick style={grid=none},
-		ymax=900
+		ymax=900,
 		]
 		\addplot[
 		scatter,only marks,scatter src=explicit symbolic,
@@ -912,7 +1837,6 @@ Here we present the performance of varying packages. Figure \ref{fig:px} display
 		Center: smallest ratios found (con\_sml)}
 	\label{fig:px}
 \end{figure}
-
 \begin{figure}[htbp!]
 	\centering
 	\begin{tikzpicture}[trim left = -1cm, scale=1]
@@ -1353,93 +2277,199 @@ Here we present the performance of varying packages. Figure \ref{fig:px} display
 \section{Discussion}
 
 \subsection{Searching}
-Randomly generating our construction given $n$ and $m$ permits us to try and generate many instances of the combinations of $n$ and $m$. So, for any value of $n$ and $m$, we are able to search for instances that lie along the $2n=m$ line. This is better describe in the following plot below:
-\par
+Randomly generating our construction given $n$ and $m$ permits us to try and generate many instances of the combinations of $n$ and $m$. So, for any value of $n$ and $m$, we are able to search for instances that lie along the $2n=m$ line. This is better described in the following plot below:
+
 \begin{figure}[h] 
 	\centering
 	\includegraphics[height=75mm]{Figs/system_search_time}
 	\caption{Time taken to search for uniquely satisfiable instances}
 	\label{fig:sa}
 \end{figure}
-The $x$ axis represents variables $n$, $y$ represents clauses $m$ and the $z$ axis represents time taken to locate in seconds. This figure was produced after recording the time taken to find a uniquely satisfiable system of equations for combinations of $n$ and $m$. Hence, what we mean by the $2n=m$ line, are those instances which satisfy that equation (e.g. $n=10$ and $m=20$). This is an important distinction ot make, as we see that instances along certain lines differ in time taken to find, namely, those that are rightmost, that is, close to the threshold of satisfiability $n=m$ (the left is bounded by $3n=m$). Fig shows the cumulative time taken to locate each instance, which means each point includes failures and regenerating and testing instances for unique satisfiability (not necessarily $k$-local consistent). It does not describe the validation time by Cryptominisat for a single instance, but does hint at this. Figure \ref{fig:sb} illustrates that we have to try much harder near the line of satisfiability to generate uniquely satisfiable systems, shown by the increase in time to the right. We see that for a single instance to be located, it took more than a hour to find a suitable instances near the $n=2000$ and $m=6000$ mark. One point to make, is that the number of tries stays the same. The empty space above lines $n=m$ and below the rightmost plots are instances which were not located using 10 attempts. Hence, it is not only becomes more unlikely to find instances, it also becomes more timely to validate them.
-\begin{figure}[htbp!] 
-	\centering
-	\includegraphics[height=75mm]{Figs/system_search_time}
-	\caption{Plot of instances found. Not that the rightmost instances take a far greater time to validate unique satisfiability}
-	\label{fig:sb}
-\end{figure}
 
-\subsection{Increasing Tries}
-Since we wanted to find more instances closer to the line of satisfiability, and found that 10 attempts to do so for a given n and m was not enough to generate such a system at random, we had to increase this value to find slower instances.
-\par
-One notable test that can be reproduced is searching along $n=m$, and setting the number of attempts to a large 100,000 attempts to generate a system. One would find that desired instances scarcely become available above the $n=m=100$ mark. We that these instances exist, but it becomes increasingly difficult to find an instance for say $n=m=150$. This can be reproduced in Test X. The largest instance we found for this ratio of $n$ and $m$ is 139, but this was not necessarily k-locally consistent as we generated this in 1 run: this is due to scarcely seeing graphs between 105 and 139, that is, many instances exceeded the 100,000 try value. Those below 100 were easy to find, and strong systems were found after many iterations, but the same cannot be said for $n>105$, although, this would be ideal.
-\begin{figure}[htbp!] 
-	\centering
-	\includegraphics[height=75mm]{Figs/system_search_time}
-	\caption{Plot of instances found for $n=m$.}
-\end{figure}
- 
-\subsection{Validation}
-ensuring we had our desired constructions meant we had to make three checks: k-local consistency and unique satisfiability by Cryptominisat, and automorphisms on our preliminary graph using Traces. 
+(Note that many graphical representations have rendered values illegible. To this end, we will describe some verbally, but retain enlarged images in our package. Such results were not saved as values, but kept as images after long running experiments.)
 
-\subsubsection{Unique satisfiability}
-Aforementioned, the time taken to check for unique satisfiability increase along the threshold of satisfiability with respect to the size of the systems. Figure \ref{fig:hm} shows this.
-\par
+The $x$ axis represents variables $n$, $y$ represents clauses $m$ and the $z$ axis represents time taken to locate in seconds. This figure was produced after recording the time taken to find a uniquely satisfiable system of equations for combinations of $n$ and $m$. Hence, what we mean by the $2n=m$ line, are those instances which satisfy that equation (e.g. $n=10$ and $m=20$). This is an important distinction ot make, as we see that instances along certain lines differ in time taken to find, namely, those that are rightmost, that is, close to the threshold of satisfiability $n=m$ (the left is bounded by $3n=m$). Figure \ref{fig:sa} shows the cumulative time taken to locate each instance, which means each point includes failures and regenerating and testing instances for unique satisfiability (not necessarily $k$-locally consistent). It does not describe the validation time by Cryptominisat for a single instance, but does hint at this. Figure \ref{fig:sb} illustrates that we have to try much harder near the line of satisfiability to generate uniquely satisfiable systems, shown by the increase in time to the right. We see that for a single instance to be located, it took more than a hour to find a suitable instances near the $n=2000$ and $m=6000$ mark. One point to make, is that the number of tries stays the same. The empty space above lines $n=m$ and below the rightmost plots are instances which were not located using 10 attempts. Hence, it is not only becomes more unlikely to find instances, it also becomes more timely to validate them.
+
 \begin{figure}[htbp!] 
 	\centering
 	\includegraphics[height=75mm]{Figs/figure_1}
-	\\
+	\caption{Plot of various systems found.}{Note that instances close to the $n=m$ line take far greater time in validation.}
+	\label{fig:sb}
+\end{figure}
+
+\newpage
+
+\subsection{Validation}
+Ensuring we had our desired constructions meant we had to make three checks: $k$-local consistency and unique satisfiability by Cryptominisat, and automorphisms on our preliminary graph using Traces. (Checking for automorphisms is left to Section \ref{sec:aut}.) 
+
+\subsubsection{Unique satisfiability}
+Aforementioned, the time taken to check for unique satisfiability increases along the threshold of satisfiability with respect to the size of the systems. Figure \ref{fig:hm} shows this.
+
+\begin{figure}[htbp!] 
+	\centering
 	\includegraphics[height=75mm]{Figs/figure_2}
 	\caption{Time taken to validate unique satisfiability using Gauss Off}
 	\label{fig:hm}
 \end{figure}
-We note that Cryptominisat works faster with gauss elimination off feature, versus on. This is Counter-intuitive, since XOR-SAT is known to have a P-Time algorithm using Gaussian elimination. The mixing of clauses may have influenced this. Nonetheless, we still find k-locally consistent systems. 
 
-\subsubsection{k-local consistency}
-Our makeshift k-local consistency check found systems which were significantly quicker using gauss on versus gauss off. In our advanced search, where we updated our store of slow running systems, that is, with the greatest difference in gauss-on and gauss off times. The following figure shows systems with negative plots are pseudo k-locally consistent. See Figure \ref{fig:kloc}.
-\par
+We note that Cryptominisat works faster with Gauss-Off feature versus Gauss-On. This is Counter-intuitive, since XOR-SAT is known to have a P-Time algorithm using Gaussian elimination. Evidently, validation of unique satisfiability systems, which are along the threshold, appear to take a vastly greater time than those further away. 
+
+\newpage
+
+\subsubsection{$k$-local consistency}
+Our makeshift $k$-local consistency check found systems which were significantly quicker using Gauss-On versus Gauss-Off. In our Advanced Search, where we updated our store of slow running systems, that is, with the greatest difference in Gauss-On and Gauss-Off times. The following figure shows systems with negative plots are pseudo k-locally consistent. See Figure \ref{fig:kloc} below.
+
 \begin{figure}[htbp!] 
-	\label{fig:kloc}
 	\centering
 	\includegraphics[height=75mm]{Figs/diff_3d}
-	\caption{Time taken to validate unique satisfiability Gauss On - Gauss Off}
+	\caption{Time taken to validate unique satisfiability Gauss On - Gauss Off.}
+	\label{fig:kloc}
 \end{figure}
+
 Notice that is more difficult to detect $k$-local consistency the further we move away from the threshold $n=m$. The difference in running times are fairly similar away from $n=m$, but erratic close to $n=m$. Especially as we increase the size of the systems. To which the boundary also moves further away from the line. 
 
-\subsection{k-local Consistency Experimental Proof}
-Here we provide experimental proof that using gauss elimination on versus off did indeed make a difference in times. We take graphs of two identical sizes, $n=300$ and $m=600$. For one system, we generated a uniquely satisfiable set of clauses without checking our stored version, which is the other. We convert both systems into graphs and find that one system is substantially slower than the other. We see that a system with a large  discrepancy in time gives rise to a drastically slower system. See Table \ref{tab:tx}.
+\subsubsection{Strengthening}
+As we will prove later, the larger difference between a Gauss-On and Gauss-Off execution time, where Gauss-On is faster for a given uniquely satisfiable 3-XOR-Formula $\phi$, the slower the final graph $G_B$ will be after transforming $\phi$ to $G_B$. Recall that in our Advanced Search we provide the facility to save the slowest found $\phi$. By repeating system searches, and continuously updating the slowest found $\phi$, we filter out very slow systems from the pool of random uniquely satisfiable systems. Hence, repeating a system search 30 times for specific instances, say $n=100$ and $m=100$, we can hope to find a strong instance which is slow for that value of $n$ and $m$. However, it is critical to note that for these values, systems must be readily available and not scarce. 
 
+\newpage
+
+\subsection{Varying Tries}
+As we search for instances close to the line of satisfiability $n=m$, our desired construction becomes much more difficult to locate. Recall that the tries parameter in our systems search determines how many times to generate $\phi$ before quitting. 
+
+We noticed that as $n$ and $m$ became larger, if we fixed the number of tries, then it would become more difficult to find instances close to the line of satisfiability. That is to say, as $n$ and $m$ increased, there would be a point where finding $2n=m$ would require more random generations to produce a desired instance, similarly with $3n=m$ and so on. This is better illustrated, but not accurately shown, in Figure \ref{fig:dif} below. The figure depicts that as values of $n$ and $m$ increase, instances along certain lines become scarce. This is important to note, since if we scarcely find instances at certain points, requiring a greater number of tries to locate, we are less likely to filter out a $k$-locally consistent system through repeating runs.
+
+One notable test that can be reproduced is searching along $n=m$, and setting the number of attempts to a large 100,000 attempts to generate a system. One would find that desired instances are hardly available above the $n=m=100$ mark. We know such instances exist, but it becomes increasingly difficult to find an instance for say $n=m=150$. The largest $\phi$ we found for this ratio of $n$ and $m$ is 139, but this was not necessarily $k$-locally consistent as we generated this in 1 run: this is due to scarcely seeing graphs between 105 and 139, that is, many instances exceeded the 100,000 try value. Those below 100 were easy to find (10 tries), and strong systems were found after many iterations, but the same cannot be said for $n>105$, although, this would be ideal since it would produce slow running graphs.
+
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[trim left=0cm, scale=0.8]
+	\begin{axis}[
+		xlabel={$n$},
+		ylabel=Tries required to locate,
+		grid=both,
+		extra tick style={grid=major, grid style={dotted, cyan}},
+		extra y tick labels={\hspace{5em}$timeout$},
+		extra x tick labels={},
+		extra y tick style={grid=none},
+		yticklabels={,,},
+		xticklabels={,,},
+		axis lines = left,
+		xmin=0,
+		clip right=false,
+		ymin=0,
+		legend pos = north west,
+	]
+	\addplot[green]  {pow(2,x)};
+	\addplot[black]  {pow(2,x-1)};
+	\addplot[red]  {pow(2,x-2)};
+	\addlegendentry{$n=m$};
+	\addlegendentry{$2n=m$};
+	\addlegendentry{$3n=m$};
+	\end{axis}
+	\end{tikzpicture}
+	\caption{Illustration of instances becoming scarce}
+	\label{fig:dif}
+\end{figure}
+
+\newpage
+\subsection{Varying Step Size}
+In our packages we provide systems and graphs which increase in size by some step factor, as defined in Table \ref{tab:parm}. If we vary the number of steps, we alter the amount of systems produces by our systems search, and ultimately how many graphs are generated. For some packages, for example $con\_n$, we have a step size of 1 between $6<n<10$, which increases to 10 at $10<n<100$, but then decreases to 1 between $100<n<150$. Recall that as instances become larger, they are begin to be scarcely available, which is prominent in the $n=m$ case. 
+
+\subsection{Bounds}
+In searching and constructing our graphs, we hit multiple bounds on what we could find. Such bounds are purely time constraints. For example, we decided to stop searching systems above $n=3000$, since our final graph $G_B$ would undoubtedly take longer than three hours to determine $Aut(G)$. A graph of $n=3000$ would result in $G_B$ having at least $18,000$ nodes. Figure \ref{fig:py} shows it was not necessary to generate graphs at this scale. Nonetheless, uniquely satisfiable instances were found at this range. Moreover, the time taken to validate such a system became large; Figure \ref{fig:sa} shows that it would take longer than 800s to find and validate such systems. We do not supplement uniquely satisfiable systems above $n=2500$ and do not provide graphs above $n=1000$ for these reasons.
+
+\subsection{Timings}
+Given that our construction is a graph which we test for automorphism that corresponds to a uniquely satisfiable and $k$-locally consistent 3-XOR-Formula, and that such a construction is tested on two types of solver, we provide a table of figures to see the overall performance. It should be emphasised that these times are based on the time taken to execute system calls initiated by Python, rather than actual CPU time for processes. Since Cryptominisat does not have such an inbuilt feature to show these values, we provide a subset of times for Traces $Aut(G_B)$ and Cryptominisat $uniquely\_satisfiable(\phi)$ using Gauss-Off. To save space, we refer to Appendix \ref{tim}. In total, Table \ref{table:pix} tells us the percentage of instances which timed out in our provided packages.
+
+\begin{table}[htbp!]
+	\centering
+	\begin{tabular}{|c|c|c|c|}
+	\hline
+	Package & Largest Graph $n:m$ & Graphs & \% of Timeouts\\ \hline
+	con\_sml & 1000:1700 & 95 & 21\% \\
+	con\_n & 139:139 & 35 &  0\% \\ 
+	con\_2n & 1000:2000 & 59 & 22\% \\ \hline
+	\end{tabular}
+	\caption{Percentage of graphs which took longer than three hours to execute on Traces}
+	\label{table:pix}
+	
+\end{table}
+
+\newpage
+
+\section{Preliminary Graph Automorphism Test}\label{sec:aut}
+Since we want our graphs with no non-trivial automorphisms, we must validate that a given system when translated into our preliminary representation has this attribute. See Figure \ref{fig:avb}
+
+We found that testing graph $G_A$ was a fairly fast check, and executed at most after a few seconds. This led to the integration of this check into our advanced search as a feature. The following figure shows run times of some preliminary graphs for automorphisms versus the corresponding final construction. We see the significance and drastic increase in execution times once we apply the multipede transformation.  
+
+\begin{figure}[h] 
+	\centering
+	\begin{tikzpicture}[trim left=-1cm, scale=0.8]
+	\begin{axis}[
+	xlabel={$n=m$},
+	ylabel=t sec,
+	grid=both,
+	legend pos=north west,
+	extra tick style={grid=major, grid style={dotted, cyan}},
+	extra x tick labels={},
+	extra y tick style={grid=none}
+	]
+	\addplot[
+	scatter,only marks,scatter src=explicit symbolic,
+	scatter/classes={
+		a={mark=o,blue},
+		b={mark=triangle*,red}
+	}
+	]
+	table[x=x,y=y,meta=label]{
+		x    y    label
+		10  0.000648975372314 a
+		10  0.000707864761353 b
+		20  0.000533103942871 a
+		20  0.000607013702393 b
+		30  0.000514030456543 a
+		30  0.00131988525391 b
+		40  0.000682830810547 a
+		40  0.00321912765503 b
+		50  0.000607013702393 a
+		50  0.00205492973328 b
+		60  0.000588893890381 a
+		60  0.00267696380615 b
+		70  0.000577926635742 a
+		70  0.00788307189941 b
+		80  0.000648975372314 a
+		80  0.0305290222168 b
+		90  0.000776052474976 a
+		90  0.00965595245361 b
+		100  0.000566959381104 a
+		100  0.273800849915 b
+		110  0.000571012496948 a
+		110  1.05121898651 b
+	};
+	\legend{$G_A$, $G_B$}
+	\end{axis}
+	\end{tikzpicture}
+	\caption{Graph $G_A$ versus $G_B$ for $n=m$}
+	\label{fig:avb}
+\end{figure}
+
+\section{k-local Consistency Experimental Proof}
+Here we provide experimental proof that using gauss elimination on versus off did indeed make a difference in times. We take graphs of two identical sizes, $n=300$ and $m=600$. For one system, we generated a uniquely satisfiable set of clauses without checking our stored version, which is the other. We convert both systems into graphs and find that one system is substantially slower than the other. We see that a system with a large  discrepancy in time gives rise to a drastically slower system. See Table \ref{table:tx}.
 
 \begin{table}[h]
 	\centering
 	\begin{tabular}{l l l l}
 		\toprule
-		Instance & Gauss On & Gauss Off & Traces time  \\ 
+		Instance 300:600 ($n:m$)& Gauss On & Gauss Off & Traces time  \\ 
 		\midrule
 		Random uniquely satisfiable system & 0.0078 & 0.0077 & 0.18 \\
 		Likely $k$-locally consistent & 0.0074 & 0.0129 & 1.04 \\
 		\bottomrule
 	\end{tabular}
-	\label{tab:tx}
-	\caption{Comparing two graphs. Both are 2n=m, for n=300, m=600. One is k-local and the other isn't.}
+	\caption{Comparing two graphs. Both are $2n=m$ with $n=300$ and $m=600$}
+	\label{table:tx}
+	
 \end{table}
- 
 
-\subsubsection{Preliminary Graph Automorphism Test}
-Since we want our graphs with no non-trivial automorphisms, we must validate that a given system when translated into our preliminary representation has this attribute. See Figure \ref{fig:avb}
-\par
-We found that testing graph $G_A$ was a fairly fast check, and executed at most after a few seconds. This led to the integration of this check into our advanced search as a feature. The following figure shows runtimes of some preliminary graphs for automorphisms. We see the significance and drastic increase in execution times once we apply the multipede transformation.  
-\begin{figure}[htbp!] 
-	\centering
-	\includegraphics[height=75mm]{Figs/diff_3d}
-	\caption{Graph A versus Graph B}
-	\label{avb}
-\end{figure}
-
-\subsection{Varying Parameters}
-We stopped our search around n=2000. We did this since locating systems took a great deal of time, as shown Fig. However, these graphs were much more larger than necessary. Since our graphs were timing out at values of n=400, there was no need to continue creating larger difficult instances. Although, it is noted that graphs up to this size are obtainable at about the timescale of an hour each. Again, multiple runs would have to be executed to ensure k-local consistency. 
-\newpage
-\subsection{Ratio of n and m}
-We noticed that as n and m became larger, if we fixed the number of tries, then it would become more difficult to find instances close to the line of satisfiability. That is to say, as n and m increased, there would be a point where finding 2n=m would become difficult, and so with 3n=m eventually by our results. This is what initiated the choice to make a package of smallest graphs found for a reasonable number of tries. We noticed that the smallest number of graphs found, for n times, repeated 30 times to find k-local consistency, resulted in the con\_sml package.
 
 

@@ -11,7 +11,7 @@
     \graphicspath{{Chapter3/Figs/Vector/}{Chapter3/Figs/}}
 \fi
 
-Moving onward from our requirements, we take the first step in producing our final product. Prior to development however is the setup of our working environment, which is of importance if we are to describe the issues and choices in development, preventing or influencing what were capable of. 
+Moving onward from our requirements, we take the first step in producing our final product. Prior to development however is the setup of our working environment, which is of importance if we are to describe the issues and choices in development, preventing or influencing capabilities. We leave much of the directory structure and information on where results are stored and how they can be reproduced in our GitHub repository \cite{quasipolynomial}.
 
 \section[Development Environment]{Development Environment}
 Our development setup is shown in Table \ref{tab:t1}. Evidently, we have enough hardware capabilities to meet the baseline requirements of our tools. However, this still led to issues described in later segments, including out of memory errors and erroneous execution times. Although, we did not experience all errors on our test server. 
@@ -83,12 +83,12 @@ We two major steps in our program: locating our desired systems, and then conver
 Each stage has its own form of elaborate checks and logic. Here we will describe each part does, how it is integrated into our architecture and notable pieces of logic. Note that this is the most basic usage of our software, and additional features and options are mentioned later. We will only describe the first two parts here, and the second parts in the Evaluation, as the following steps were a result of findings. 
 
 \subsection{Timing}
-Times were monitored using pythons Timeit library. If a timeout was specified, and exception would be thrown and han[ht]dled appropriately. Runs which required the uses of system calls, such as dreadnaut and Traces, would be called using the Process Handler. One would record the time before and after the call was made. Granted this does not give the very accurate times, but was satisfactory enough to gauge the general idea. We assumed that making the system call would only add sub second times to overall execution, which results in no large changes in the execution of large graphs, which executed for multiple minutes. 
+Times were monitored using pythons Timeit library. If a timeout was specified, and exception would be thrown and handled appropriately. Runs which required the uses of system calls, such as dreadnaut and Traces, would be called using the Process Handler. One would record the time before and after the call was made. Granted this does not give the very accurate times, but was satisfactory enough to gauge the general idea. We assumed that making the system call would only add sub second times to overall execution, which results in no large changes in the execution of large graphs, which executed for multiple minutes. 
 \newpage
 \subsection[Systems Search]{Systems Search}
 Given values max\_n	and max\_m, the maximum number of clauses and literals respectively, we search for systems in the following manner (see algorithm for details): let $n=m=4$; iterate over the set $N=\{n, n+step,..,max\_n\}$; for each $n \in N$, iterate over the set $M=\{m, m+step,..,max\_m\}$; for these values of $n$ and $m$, generate a random system of equations from a pool of $n$ literals, that is $\{1,2,..,n\}$ with $m$ clauses; validate this system for unique satisfiability and k-local consistency; if it is valid, then store this system. See Algorithm \ref{alg:a1}.
 \par
-There are, of course, may checks not mentioned, however, we take this as the simplest form of generating a range of systems, over the Cartesian product of $N$ and $M$, where $n \leq m$. Thereby ranging from the line of satisfiability, $n=m$, to some $n=max_n$ and $m=max_m$
+There are, of course, many checks not mentioned, however, we take this as the simplest form of generating a range of systems, over the Cartesian product of $N$ and $M$, where $n \leq m$. Thereby ranging from the line of satisfiability, $n=m$, to some $n=max_n$ and $m=max_m$
 
 \begin{algorithm}[htbp!]
 \SetAlgoNoLine
@@ -125,7 +125,7 @@ return $systems$
 
 \newpage
 \subsection{Constructing Graphs}
-In transforming eligible systems into our final construction, we must first ensure that the graphical representation of our XOR-Formula contains no automorphisms. This is determined by Traces, and is fairly easy to compute. Once this is decided, them we we apply the multipede structure on our graph, resulting in the final product. Recall in the background segment we label the preliminary and final graphs $G_A$ and $G_B$ respectively. See Algorithm \ref{alg:a2}.
+In transforming eligible systems into our final construction, we must first ensure that the graphical representation of our XOR-Formula contains no automorphisms. This is determined by Traces, and is fairly easy to compute. Recall in the background segment we label the preliminary and final graphs $G_A$ and $G_B$ respectively. See Algorithm \ref{alg:a2}.
 \par
 $G_A$ is trivial to construct into its graphical representation, whereas $G_B$ requires only slightly more logic. We used numpy matrices to construct adjacency matrices from a system, which worked sufficiently well for large systems. 
 \begin{algorithm}[htbp!]
@@ -173,7 +173,7 @@ During implementation, many constants and variables were assigned values in resp
 		Tries & Generating random systems has two problems: 1, we include the same clause twice from a pool of literals. 2, The system may not match our criteria Therefore, we try this many times before moving on.\\ \hline
 		Timeout & dreadnaut, nauty/Traces \\ \hline
 		Upper bound and lower bound & Suppose we wanted to search along the threshold of satisfiability. we would set this value to 1. This describe the upper and lower bound of n = u * m, for some u.\\ \hline
-		Defaults & n=m \\
+		Strongly $k$ & A system is strongly $k$ if there is a large difference in Gauss-On versus Gauss-Off. Some systems have a larger discrepancy than others of the same size. We put aside systems with the largest discrepancy during our Advanced Search. \\ \hline
 		\bottomrule
 	\end{tabular}
 	\caption{Search parameters}
@@ -196,22 +196,22 @@ For some instances, even at the relatively small end of our graphs, which consis
 Given that there is more than one way to program our logic, multiple strategies were used to generate our desired construction. Here we define additional methods utilised and features that extended beyond our requirements and design. They may be of importance in future applications.
 
 \subsection{Alternative XOR-Formula Generation}
-Our algorithm to generate desired systems picks three random literals and adds these to a set of clauses. However, for some values of n and m, a system cannot be located. We know that there exists a suitable system for these values, but cant be selected at random due to the large permutation of n. For small values of n and m, we believed that all combinations could be held in memory and systematically tested, rather than being generated at random. Hence, a recursive search is provided to find all combinations to be tested. However, in implementation, this could not be used even for small values of n and m due to running times. Nonetheless, this feature may be of importance when time is not an issue, and a set of desired systems are required for given values.
+Our algorithm to generate desired systems picks three random literals and adds these to a set of clauses. However, for some values of $n$ and $m$, a system cannot be located. We know that there exists a suitable system for these values, but cant be selected at random due to the large permutation of $n$. For small values of $n$ and $m$, we believed that all combinations could be held in memory and systematically tested, rather than being generated at random. Hence, a recursive search is provided to find all combinations to be tested. However, in implementation, this could not be used even for small values of n and m due to running times. Nonetheless, this feature may be of importance when time is not an issue, and a set of desired systems are required for given values.
 
 \subsection{Updating Slow Systems}
-Since we determine k-local consistency by checking if one system executes faster with Gauss-On versus Gauss-Off, it can be problematic to determine if a system is suitably slow. Small systems execute very quickly, and differ into two runs by only sub second values. These sub second difference could be mistaken for fluctuations in system performance, rather actual operating time (since we are measuring time not by process execution time, but start and end times). Here we have two solutions to mitigate this error.
+Since we determine $k$-local consistency by checking if one system executes faster with Gauss-On versus Gauss-Off, it can be problematic to determine if a system is suitably slow. Small systems execute very quickly, and differ into two runs by only sub second values. These sub second difference could be mistaken for fluctuations in system performance, rather actual operating time (since we are measuring time not by process execution time, but start and end times). Here we have two solutions to mitigate this error.
 \par
-The first solution is to use some parameter, say \emph{minimal\_difference}, to provide a lower bound on the value required for a k-locally consistent system. However, this may be too large for small systems to register or too small to attain difficult instances. The second option is to solve this problem by repeating runs. We save those systems which have the largest difference in a separate directory, and replace these systems when comparing differences. If a newly found system is slower, that is it has a larger positive difference than the stored one, then we replace the stored one. This way, by using many iterations, we can generate a set of systems which have the largest differences to date. We are able to filter out those instances with exceptionally slow times. These graphs will be the most difficult found, and thus, the ideal type to construct to use in benchmarking. We prove this experimentally.
+The first solution is to use some parameter, say \emph{minimal\_difference}, to provide a lower bound on the value required for a $k$-locally consistent system. However, this may be too large for small systems to register or too small to attain difficult instances. The second option is to solve this problem by repeating runs. We save those systems which have the largest difference in a separate directory, and replace these systems when comparing differences. If a newly found system is slower, that is it has a larger positive difference than the stored one, then we replace the stored one. This way, by using many iterations, we can generate a set of systems which have the largest differences to date. We are able to filter out those instances with exceptionally slow times. These graphs will be the most difficult found, and thus, the ideal type to construct to use in benchmarking. We prove this experimentally.
 
 \subsection{Advanced Search}
 Considering that we must check if a suitable system gives rise to a graph with no non-trivial automorphism, we can combine this check when searching for systems. In addition to updating strongly k-systems, we have the tools to search for the ideal graph.
 \par
-If we convert the system to a graph and check for automorphisms on the fly, that is, whilst searching and validating systems, we eliminate the need to build up a database of suitable systems up to the point of automorphisms, at the cost of running time. Thus, the search can be computationally heavy, but we ensure that every proceeding search is better than the last. There are parameters defined enabling us to use this extended validation check.
+If we convert the system to a graph and check for automorphisms on the fly, that is, whilst searching and validating systems, we eliminate the need to build up a database of suitable systems up to the point of automorphisms, at the cost of running time. There are parameters defined enabling us to use this extended validation check.
 
 \subsection{Optimised Search}
 Numerous parameters are available to speed up searching. Here we briefly describe how they can be used.
 \par
-The upper bound and lower bound variables search for a given region of n and m. For example, if we wanted to search for systems along the line of satisfiability, we would set both values to 1. This would ensure we get the most difficult instances possible, but results in longer execution time due to failed tries (see Section 5). Moreover, we can check along n=2m or between n=m and n=2m, and so forth.
+The upper bound and lower bound variables search for a given region of $n and m$. For example, if we wanted to search for systems along the line of satisfiability, we would set both values to 1. This would ensure we get the most difficult instances possible, but results in longer execution time due to failed tries. Moreover, we can check along $2n=m$ or between $n=m$ and $2n=m$, and so forth. This becomes clear in the following Chapter.
 \par
 Similar to the upper bound and lower bound variables, the limit variable permits us to search for a given number of systems for a given n. That is, move up n by step if we have found $limit$ systems. This is important when we consider the next paragraph.
 \par
