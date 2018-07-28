@@ -93,6 +93,7 @@ class Main(object):
         fh = FileHandler()
         paths = ph.run_command("ls -v ./../assets/systems_to_convert/")
         validate = kwargs.get("validate", False)
+        delete = kwargs.get("delete", False)
 
         # Iterate systems
         for path in paths:
@@ -114,7 +115,8 @@ class Main(object):
                 # Check for k-local consistency
                 if not sat.is_k_consistent(n, m, system):
                     print "\t Not K consistent system. Removing and skipping."
-                    fh.delete_file(system_path)
+                    if delete:
+                        fh.delete_file(system_path)
                     continue
                 else:
                     print "\t K consistent system. Constructing A."
@@ -126,11 +128,13 @@ class Main(object):
                     print "\t No Automorphisms. Constructing B."
                     G = sat.convert_system_to_construction(n, m, system)
                     gi.convert_graph_to_traces(n, m, G, "B", "./../assets/construction/")  # Second construction
-                    fh.delete_file(graph_path)
+                    if delete:
+                        fh.delete_file(graph_path)
                 else:
                     print "\t Automorphisms. Removing and skipping."
-                    fh.delete_file(graph_path)  # Remove unwanted graph
-                    fh.delete_file(system_path)  # Remove unwanted system
+                    if delete:
+                        fh.delete_file(graph_path)  # Remove unwanted graph
+                        fh.delete_file(system_path)  # Remove unwanted system
             else:
                 G = sat.convert_system_to_construction(n, m, system)
                 gi.convert_graph_to_traces(n, m, G, "B", "./../assets/construction/")
@@ -318,7 +322,7 @@ def test_6():
     :return: 
     """
     main = Main()
-    main.convert_systems_to_constructions(validate=False)
+    main.convert_systems_to_constructions(validate=True, delete=False)
     main.execute_constructions()
     # main.plot_constructions_results()
 
@@ -536,18 +540,14 @@ if __name__ == "__main__":
     # test_15() # Search
     # test_16() # Search
 
-
     fh = FileHandler()
-    ph = PlotHandler()
-    sat = Sat()
-
-    #main = Main()
-    #main.plot_generate_systems_results("/home/kashif/repos/mphil/assets/results/sat/0-n-10000_0-m-10000_step-100/results")
-
-    system = fh.read_from_file("/home/kashif/repos/mphil/assets/results/k-and-not-k/300_600")
-    # a = sat.get_gauss_on_time("/home/kashif/repos/mphil/assets/results/k-and-not-k/300_600")
-    # b = sat.get_gauss_off_time("/home/kashif/repos/mphil/assets/results/k-and-not-k/300_600")
-    print sat.is_system_uniquely_satisfiable(system, 300)
-    # print a, b
-    # for i in data:
-    #     print "{0}\t{1}\t{2}".format(i["nodes"],i["time"], "a")
+    data = fh.read_from_file("/home/kashif/repos/mphil/assets/results/sat/0-n-10000_0-m-10000_step-100/results")
+    for d in data:
+        print "{0}  {1} a".format(d[1], d[2])
+    i = [10,20,30,40,50,60,70,80,90,100, 110, 120]
+    gi = Gi()
+    for j in i:
+        a = gi.run_graph_instance("ga_vs_gb", "{0}_{1}_A.dre".format(j,j))
+        b = gi.run_graph_instance("ga_vs_gb", "{0}_{1}_B.dre".format(j,j))
+        print "{0}  {1} a".format(j,a["time"],1)
+        print "{0}  {1} b".format(j,b["time"],1)
